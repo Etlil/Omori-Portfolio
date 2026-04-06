@@ -2,27 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --omori-red: #ff0000;
+* {
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: 'Courier New', Courier, monospace; /* Or a custom Omori font */
-  cursor: crosshair; /* Adds to the eerie/minimalist vibe */
+  font-family: var(--font-omori), sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-/* The sketchy border effect */
-.omori-border {
-  border: 3px solid black;
-  box-shadow: 4px 4px 0px black;
-  transition: all 0.2s ease;
+a {
+  color: inherit !important;
+  text-decoration: none !important;
 }
 
-.omori-border:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px black;
+@media (hover: hover) and (pointer: fine) {
+  * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M8 2 L8 22 L13 17 L17 26 L20 25 L16 16 L23 16 Z' fill='black' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E") 8 2, pointer !important;
+  }
 }

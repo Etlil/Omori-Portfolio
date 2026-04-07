@@ -18,8 +18,12 @@ a {
   text-decoration: none !important;
 }
 
+* {
+  cursor: url('/assets/cursor.png') 4 4, pointer !important;
+}
+
 @media (hover: hover) and (pointer: fine) {
   * {
-    cursor: url('/assets/cursor.png') 4 4, pointer;
+    cursor: url('/assets/cursor.png') 4 4, pointer !important;
   }
 }

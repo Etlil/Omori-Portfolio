@@ -155,10 +155,10 @@ export default function Home() {
         className="flex flex-col items-center gap-6 text-center w-full max-w-2xl"
         style={{ position: 'relative', zIndex: 1 }}
       >
-        <div style={{ position: 'absolute', top: '20px', left: '20px' }}>
-          <p style={{ color: fg, opacity: 0.4 }} className="text-xs tracking-[0.25em] uppercase">
+        <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
+          <h1 style={{ color: fg, opacity: 0.4, fontWeight: 'bold' }} className="text-base tracking-[0.25em] uppercase">
             My Portfolio
-          </p>
+          </h1>
         </div>
 
         <div className="relative w-full" style={{ height: '100vh', position: 'relative' }}>
@@ -191,6 +191,9 @@ export default function Home() {
               userSelect: 'none',
               cursor: `url('/assets/cursor.png') 4 4, pointer`,
               transition: 'transform 0.12s ease-out',
+              minWidth: '80px',
+              minHeight: '80px',
+              padding: '10px',
             }}
             onClick={() => setIsDark(prev => !prev)}
             onTouchEnd={(e) => {
@@ -202,6 +205,40 @@ export default function Home() {
             onMouseLeave={() => setBulbHovered(false)}
             onTouchStart={() => setBulbHovered(true)}
           >
+            {bulbHovered && (
+              <div style={{
+                position: 'absolute',
+                bottom: 'calc(100% + 8px)',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: bg,
+                border: `2px solid ${fg}`,
+                boxShadow: 'none',
+                padding: '3px 10px',
+                fontSize: '10px',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+                color: fg,
+                fontFamily: 'inherit',
+                zIndex: 20,
+                pointerEvents: 'none',
+              }}>
+                {isDark ? 'Toggle Light Mode' : 'Toggle Dark Mode'}
+                <div style={{
+                  position: 'absolute', top: '100%', left: '50%',
+                  transform: 'translateX(-50%)', width: 0, height: 0,
+                  borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
+                  borderTop: `6px solid ${fg}`,
+                }}/>
+                <div style={{
+                  position: 'absolute', top: 'calc(100% - 2px)', left: '50%',
+                  transform: 'translateX(-50%)', width: 0, height: 0,
+                  borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
+                  borderTop: `5px solid ${bg}`, zIndex: 1,
+                }}/>
+              </div>
+            )}
             <div style={{ position: 'relative', width: '60px', height: '80px' }}>
               <Image
                 src={isDark ? '/assets/darkbulb.png' : '/assets/lightbulb.png'}
@@ -250,7 +287,7 @@ export default function Home() {
 
           {/* Tissue Box — below sketchbook */}
           <div style={{ transform: `translate(${tilt.x * 1 * 12}px, ${tilt.y * 0.6 * 12}px)`, position: 'absolute', top: '60%', right: '7%', transition: 'transform 0.12s ease-out' }}>
-            <SceneItem label="Tissue Box" isDark={isDark} href="#contact">
+            <SceneItem label="Skills" isDark={isDark} href="#contact">
               <div style={{ position: 'relative', width: '65px', height: '60px' }}>
                 <Image
                   src="/assets/tissue_box.png"
@@ -288,6 +325,9 @@ export default function Home() {
               alignItems: 'center',
               cursor: `url('/assets/cursor.png') 4 4, pointer`,
               transition: 'transform 0.12s ease-out',
+              minWidth: '120px',
+              minHeight: '120px',
+              padding: '10px',
             }}
             onMouseEnter={() => setCharHovered(true)}
             onMouseLeave={() => setCharHovered(false)}
@@ -358,7 +398,7 @@ function SceneItem({
   children: React.ReactNode;
   href?: string;
   onClick?: () => void;
-  hoverSrc?: string;   // optional hover image swap
+  hoverSrc?: string;
 }) {
   const [hovered, setHovered] = useState(false);
   const fg = isDark ? 'white' : 'black';
@@ -375,6 +415,9 @@ function SceneItem({
         touchAction: 'manipulation',
         userSelect: 'none',
         cursor: `url('/assets/cursor.png') 4 4, pointer`,
+        minWidth: '60px',
+        minHeight: '60px',
+        padding: '10px',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

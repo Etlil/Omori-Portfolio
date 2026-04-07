@@ -9,6 +9,7 @@ export default function Home() {
   const [blanketWobble, setBlanketWobble] = useState({ x: 0, y: 0 });
   const [charHovered, setCharHovered] = useState(false);
   const [bulbHovered, setBulbHovered] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
   const smoothRef = useRef({ x: 0, y: 0 });
   const wobbleRef = useRef({ x: 0, y: 0 });
   const targetWobbleRef = useRef({ x: 0, y: 0 });
@@ -36,6 +37,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const handleTouchStart = () => setIsTouching(true);
+    const handleTouchEnd = () => setIsTouching(false);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('mousedown', handleTouchStart);
+    window.addEventListener('mouseup', handleTouchEnd);
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('mousedown', handleTouchStart);
+      window.removeEventListener('mouseup', handleTouchEnd);
+    };
+  }, []);
+
+  useEffect(() => {
     const animate = () => {
       wobbleRef.current.x += (targetWobbleRef.current.x - wobbleRef.current.x) * 0.06;
       wobbleRef.current.y += (targetWobbleRef.current.y - wobbleRef.current.y) * 0.06;
@@ -48,6 +64,7 @@ export default function Home() {
 
   const startGyro = () => {
     const handler = (e: DeviceOrientationEvent) => {
+      if (isTouching) return;
       const targetX = Math.max(-1, Math.min(1, (e.gamma ?? 0) / 30));
       const targetY = Math.max(-1, Math.min(1, ((e.beta ?? 0) - 20) / 30));
       smoothRef.current.x += (targetX - smoothRef.current.x) * 0.1;

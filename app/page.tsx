@@ -174,7 +174,7 @@ export default function Home() {
       >
         <div style={{ position: 'absolute', top: '5px', left: '20px' }}>
           <h1 style={{ color: fg, opacity: 0.4, fontWeight: 'bold' }} className="text-base tracking-[0.25em] uppercase">
-            My Portfolio
+            My Portfolios
           </h1>
         </div>
 

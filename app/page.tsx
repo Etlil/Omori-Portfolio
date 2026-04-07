@@ -1,12 +1,18 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [gyroActive, setGyroActive] = useState(false);
+  const [blanketWobble, setBlanketWobble] = useState({ x: 0, y: 0 });
+  const [charHovered, setCharHovered] = useState(false);
+  const [bulbHovered, setBulbHovered] = useState(false);
   const smoothRef = useRef({ x: 0, y: 0 });
+  const wobbleRef = useRef({ x: 0, y: 0 });
+  const targetWobbleRef = useRef({ x: 0, y: 0 });
+  const animFrameRef = useRef<number>(0);
 
   const bg = isDark ? 'black' : 'white';
   const fg = isDark ? 'white' : 'black';
@@ -16,9 +22,28 @@ export default function Home() {
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
       setTilt({ x, y });
+      targetWobbleRef.current = { x: x * 18, y: y * 10 };
     };
     window.addEventListener('mousemove', handleMouse);
     return () => window.removeEventListener('mousemove', handleMouse);
+  }, []);
+
+  useEffect(() => {
+    const isIOS = typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function';
+    if (!isIOS) {
+      startGyro();
+    }
+  }, []);
+
+  useEffect(() => {
+    const animate = () => {
+      wobbleRef.current.x += (targetWobbleRef.current.x - wobbleRef.current.x) * 0.06;
+      wobbleRef.current.y += (targetWobbleRef.current.y - wobbleRef.current.y) * 0.06;
+      setBlanketWobble({ x: wobbleRef.current.x, y: wobbleRef.current.y });
+      animFrameRef.current = requestAnimationFrame(animate);
+    };
+    animFrameRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animFrameRef.current);
   }, []);
 
   const startGyro = () => {
@@ -28,8 +53,8 @@ export default function Home() {
       smoothRef.current.x += (targetX - smoothRef.current.x) * 0.1;
       smoothRef.current.y += (targetY - smoothRef.current.y) * 0.1;
       setTilt({ x: smoothRef.current.x, y: smoothRef.current.y });
+      targetWobbleRef.current = { x: smoothRef.current.x * 18, y: smoothRef.current.y * 10 };
     };
-
     if (
       typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function'
     ) {
@@ -38,12 +63,10 @@ export default function Home() {
         .then(res => {
           if (res === 'granted') {
             window.addEventListener('deviceorientation', handler, true);
-            setGyroActive(true);
           }
         }).catch(console.error);
     } else {
       window.addEventListener('deviceorientation', handler, true);
-      setGyroActive(true);
     }
   };
 
@@ -52,248 +75,274 @@ export default function Home() {
     transition: 'transform 0.12s ease-out',
   });
 
+  const bx = blanketWobble.x;
+  const by = blanketWobble.y;
+
+  const blanketD = [
+    `M 60 2`,
+    `L 340 2`,
+    `L ${400 + bx * 0.2} ${108 + by * 0.2}`,
+    `C ${340 + bx} ${118 + by} ${60 + bx} ${118 + by} ${0 + bx * 0.2} ${108 + by * 0.2}`,
+    `Z`,
+  ].join(' ');
+
+  const fringeCount = 10;
+  const fringePoints = Array.from({ length: fringeCount }, (_, i) => {
+    const t = i / (fringeCount - 1);
+    const baseX = t * 400;
+    const curveX = baseX + bx * (0.2 + t * 0.6);
+    const curveY = 112 + by * (0.2 + Math.sin(t * Math.PI) * 0.8);
+    return { x: curveX, y: curveY };
+  });
+
   return (
     <main
-      style={{ backgroundColor: bg, color: fg }}
+      style={{
+        backgroundColor: bg,
+        color: fg,
+        cursor: `url('/assets/cursor.png') 4 4, pointer`,
+        overflow: 'hidden',
+        height: '100vh',
+        width: '100vw',
+      }}
       className="min-h-screen flex flex-col items-center justify-center p-8 transition-colors duration-700 relative overflow-hidden"
     >
-      {/* 🔧 REMOVED pointer-events-none — replaced with CSS so it never intercepts touch */}
-      <div
-        style={{
-          opacity: isDark ? 0.1 : 0.03,
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: "url('https://www.transparenttextures.com/patterns/asfalt-light.png')",
-          pointerEvents: 'none',  // 🔧 explicitly set AND no z-index so it stays behind
-          zIndex: 0,
-        }}
-      />
+      {/* Background noise */}
+      <div style={{
+        opacity: isDark ? 0.1 : 0.03,
+        position: 'absolute', inset: 0,
+        backgroundImage: "url('https://www.transparenttextures.com/patterns/asfalt-light.png')",
+        pointerEvents: 'none', zIndex: 0,
+      }}/>
 
-      {/* 🔧 Enable Motion button — uses a real <button> tag */}
-      {!gyroActive && (
-        <button
-          onClick={startGyro}
-          onTouchEnd={(e) => {
-            e.preventDefault(); // 🔧 key fix — stops the 300ms delay and ghost click
-            startGyro();
-          }}
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: 'transparent',
-            border: `2px solid ${fg}`,
-            color: fg,
-            padding: '10px 20px',
-            fontSize: '10px',
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            fontFamily: 'inherit',
-            zIndex: 999,
-            boxShadow: `2px 2px 0px ${fg}`,
-            WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation',
-            minWidth: '44px',
-            minHeight: '44px',
-          }}
-          className="md:hidden"
+      {/* Blanket trapezoid */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0, left: 0, right: 0,
+        height: '300px',
+        zIndex: 0,
+        pointerEvents: 'none',
+      }}>
+        <svg
+          width="100%" height="140" viewBox="0 0 400 140"
+          preserveAspectRatio="none"
+          style={{ display: 'block' }}
         >
-          Enable Motion
-        </button>
-      )}
+          <defs>
+            <pattern id="stripes" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(90)">
+              <line x1="0" y1="0" x2="0" y2="18" stroke={fg} strokeWidth="1" opacity="0.07"/>
+            </pattern>
+            <clipPath id="blanketClip">
+              <path d={blanketD}/>
+            </clipPath>
+          </defs>
+          <path d={blanketD} fill={isDark ? '#111' : '#f5f5f5'} stroke={fg} strokeWidth="1.5" strokeLinejoin="round"/>
+          <rect x="0" y="0" width="400" height="140" fill="url(#stripes)" clipPath="url(#blanketClip)"/>
+          <path d={`M 70 18 C 200 24 200 24 330 18`} fill="none" stroke={fg} strokeWidth="1" opacity="0.2"/>
+          {fringePoints.map((pt, i) => (
+            <line key={i}
+              x1={pt.x} y1={pt.y}
+              x2={pt.x + (bx * 0.1)} y2={pt.y + 10 + by * 0.1}
+              stroke={fg} strokeWidth="1.5" strokeLinecap="round" opacity="0.5"
+            />
+          ))}
+        </svg>
+      </div>
 
-      {/* 🔧 z-index: 1 ensures this whole content block is above the noise div */}
+
+
       <div
         className="flex flex-col items-center gap-6 text-center w-full max-w-2xl"
         style={{ position: 'relative', zIndex: 1 }}
       >
-        <div style={layer(0.5)}>
+        <div style={{ position: 'absolute', top: '20px', left: '20px' }}>
           <p style={{ color: fg, opacity: 0.4 }} className="text-xs tracking-[0.25em] uppercase">
             My Portfolio
           </p>
         </div>
 
-        <div className="relative w-full flex flex-col items-center gap-4">
+        <div className="relative w-full" style={{ height: '100vh', position: 'relative' }}>
 
-          {/* TOP ROW */}
-          <div style={layer(1)} className="flex justify-between w-full px-4">
+          {/* Door — left side */}
+          <div style={{ position: 'absolute', top: '10%', left: '20%' }}>
             <SceneItem label="Door" isDark={isDark}>
-              <svg width="52" height="80" viewBox="0 0 52 80" overflow="visible">
-                <rect x="2" y="4" width="48" height="74" rx="1" fill={bg} stroke={fg} strokeWidth="2.5"/>
-                <rect x="6" y="8" width="40" height="66" rx="1" fill={isDark ? '#111' : '#f5f5f5'} stroke={fg} strokeWidth="1.5"/>
-                <rect x="9" y="11" width="15" height="28" rx="1" fill={bg} stroke={fg} strokeWidth="1"/>
-                <rect x="28" y="11" width="15" height="28" rx="1" fill={bg} stroke={fg} strokeWidth="1"/>
-                <rect x="9" y="43" width="34" height="28" rx="1" fill={bg} stroke={fg} strokeWidth="1"/>
-                <circle cx="34" cy="58" r="2.5" fill={fg}/>
-                <rect x="0" y="0" width="52" height="5" rx="1" fill={fg}/>
-              </svg>
-            </SceneItem>
-
-            {/* Light Bulb — direct touch handler */}
-            <div
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                position: 'relative',
-                WebkitTapHighlightColor: 'transparent',
-                touchAction: 'manipulation',
-                userSelect: 'none',
-                cursor: 'pointer',
-                minWidth: '60px',
-                minHeight: '80px',
-                justifyContent: 'center',
-              }}
-              onClick={() => setIsDark(prev => !prev)}
-              onTouchEnd={(e) => {
-                e.preventDefault(); // 🔧 prevents ghost click delay
-                setIsDark(prev => !prev);
-              }}
-            >
-              <svg width="36" height="60" viewBox="0 0 36 60" overflow="visible">
-                <line x1="18" y1="0" x2="18" y2="10" stroke={fg} strokeWidth="2"/>
-                <path d="M6,22 Q6,10 18,10 Q30,10 30,22 Q30,32 24,38 L12,38 Q6,32 6,22Z"
-                  fill={isDark ? '#fffde0' : bg} stroke={fg} strokeWidth="2"
-                  style={{ filter: isDark ? 'drop-shadow(0 0 8px rgba(255,230,50,0.9))' : 'none' }}
+              <div style={{ position: 'relative', width: '200px', height: '233px' }}>
+                <Image
+                  key={isDark ? 'door-dark' : 'door-light'}
+                  src={isDark ? '/assets/door_dark.png' : '/assets/door_light.jpg'}
+                  alt="Door"
+                  fill
+                  style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
                 />
-                <polyline points="13,30 13,24 15,28 17,24 19,28 21,24 23,28 23,30" fill="none" stroke={isDark ? '#aaa' : fg} strokeWidth="1.2"/>
-                <rect x="11" y="37" width="14" height="4" rx="1" fill={isDark ? '#444' : '#ddd'} stroke={fg} strokeWidth="1.5"/>
-                <rect x="12" y="41" width="12" height="4" rx="1" fill={isDark ? '#333' : '#ccc'} stroke={fg} strokeWidth="1.5"/>
-                <rect x="13" y="45" width="10" height="3" rx="1" fill={isDark ? '#222' : '#bbb'} stroke={fg} strokeWidth="1.5"/>
+              </div>
+            </SceneItem>
+          </div>
+
+          {/* Light Bulb — top right */}
+          <div
+            style={{
+              transform: `translate(${tilt.x * 1 * 12}px, ${tilt.y * 1 * 12}px) translateY(${bulbHovered ? '-6px' : '0'})`,
+              position: 'absolute',
+              top: '10%',
+              right: '30%',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation',
+              userSelect: 'none',
+              cursor: `url('/assets/cursor.png') 4 4, pointer`,
+              transition: 'transform 0.12s ease-out',
+            }}
+            onClick={() => setIsDark(prev => !prev)}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              setIsDark(prev => !prev);
+              setBulbHovered(false);
+            }}
+            onMouseEnter={() => setBulbHovered(true)}
+            onMouseLeave={() => setBulbHovered(false)}
+            onTouchStart={() => setBulbHovered(true)}
+          >
+            <div style={{ position: 'relative', width: '60px', height: '80px' }}>
+              <Image
+                src={isDark ? '/assets/darkbulb.png' : '/assets/lightbulb.png'}
+                alt="Light Bulb"
+                fill
+                style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+              />
+              <svg
+                style={{ position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none', overflow: 'visible' }}
+                width="4"
+                height="120"
+                viewBox="0 0 4 120"
+              >
+                <line x1="2" y1="0" x2="2" y2="130" stroke={fg} strokeWidth="2" strokeLinecap="round"/>
               </svg>
-              <p style={{ color: fg, opacity: 0.4 }} className="text-[9px] mt-1 tracking-widest uppercase">
-                {isDark ? 'Repression Active' : 'Click to Turn Off'}
-              </p>
             </div>
           </div>
 
-          {/* MID ROW */}
-          <div style={layer(1.8)} className="flex justify-center gap-16 w-full">
-            <SceneItem label="Blanket" isDark={isDark}>
-              <svg width="70" height="55" viewBox="0 0 70 55" overflow="visible">
-                <path d="M5,10 Q10,6 35,8 Q60,6 65,10 L68,45 Q60,52 35,50 Q10,52 2,45 Z" fill={bg} stroke={fg} strokeWidth="2"/>
-                <line x1="17" y1="9" x2="14" y2="49" stroke={fg} strokeWidth="1" opacity="0.15"/>
-                <line x1="30" y1="8" x2="28" y2="50" stroke={fg} strokeWidth="1" opacity="0.15"/>
-                <line x1="43" y1="8" x2="42" y2="50" stroke={fg} strokeWidth="1" opacity="0.15"/>
-                <line x1="56" y1="9" x2="56" y2="49" stroke={fg} strokeWidth="1" opacity="0.15"/>
-                <path d="M5,10 Q10,18 35,16 Q60,18 65,10" fill={isDark ? '#222' : '#f0f0f0'} stroke={fg} strokeWidth="1.5"/>
-                <line x1="8" y1="49" x2="6" y2="54" stroke={fg} strokeWidth="1.5"/>
-                <line x1="18" y1="51" x2="17" y2="55" stroke={fg} strokeWidth="1.5"/>
-                <line x1="28" y1="51" x2="28" y2="55" stroke={fg} strokeWidth="1.5"/>
-                <line x1="38" y1="51" x2="38" y2="55" stroke={fg} strokeWidth="1.5"/>
-                <line x1="48" y1="51" x2="48" y2="55" stroke={fg} strokeWidth="1.5"/>
-                <line x1="58" y1="51" x2="59" y2="55" stroke={fg} strokeWidth="1.5"/>
-                <line x1="65" y1="49" x2="67" y2="54" stroke={fg} strokeWidth="1.5"/>
-              </svg>
-            </SceneItem>
-
-            <SceneItem label="Laptop" isDark={isDark} href="#projects">
-              <svg width="70" height="55" viewBox="0 0 70 55" overflow="visible">
-                <rect x="5" y="2" width="60" height="38" rx="2" fill={isDark ? '#111' : '#f8f8f8'} stroke={fg} strokeWidth="2.5"/>
-                <rect x="9" y="6" width="52" height="30" rx="1" fill={bg} stroke={fg} strokeWidth="1.2"/>
-                <line x1="14" y1="13" x2="40" y2="13" stroke={fg} strokeWidth="1" opacity="0.3"/>
-                <line x1="14" y1="18" x2="55" y2="18" stroke={fg} strokeWidth="1" opacity="0.2"/>
-                <line x1="14" y1="23" x2="48" y2="23" stroke={fg} strokeWidth="1" opacity="0.2"/>
-                <line x1="14" y1="28" x2="50" y2="28" stroke={fg} strokeWidth="1" opacity="0.2"/>
-                <circle cx="35" cy="5" r="1.2" fill={fg} opacity="0.4"/>
-                <rect x="5" y="38" width="60" height="3" rx="0" fill={isDark ? '#333' : '#ddd'} stroke={fg} strokeWidth="1.5"/>
-                <path d="M2,41 L5,41 L65,41 L68,41 L70,50 L0,50 Z" fill={isDark ? '#222' : '#f0f0f0'} stroke={fg} strokeWidth="2"/>
-                <rect x="25" y="43" width="20" height="5" rx="1" fill={bg} stroke={fg} strokeWidth="1"/>
-              </svg>
+          {/* Laptop — middle left */}
+          <div style={{ transform: `translate(${tilt.x * 0.3 * 12}px, ${tilt.y * 0.6 * 12}px)`, position: 'absolute', top: '47%', left: '15%', transition: 'transform 0.12s ease-out' }}>
+            <SceneItem label="Contacts" isDark={isDark} href="#projects" hoverSrc="/assets/laptop_hover.png">
+              <div style={{ position: 'relative', width: '90px', height: '70px' }}>
+                <Image
+                  src="/assets/laptop.png"
+                  alt="Laptop"
+                  fill
+                  style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+                />
+              </div>
             </SceneItem>
           </div>
 
-          {/* OMORI */}
-          <div style={layer(2.5)}>
-            <svg width="48" height="80" viewBox="0 0 48 80">
-              <rect x="14" y="36" width="20" height="24" rx="1" fill={bg} stroke={fg} strokeWidth="2"/>
-              <rect x="14" y="40" width="20" height="3" fill={isDark ? '#333' : '#eee'}/>
-              <rect x="5" y="38" width="9" height="5" rx="2" fill={bg} stroke={fg} strokeWidth="1.8"/>
-              <rect x="34" y="38" width="9" height="5" rx="2" fill={bg} stroke={fg} strokeWidth="1.8"/>
-              <rect x="15" y="59" width="7" height="16" rx="1" fill={bg} stroke={fg} strokeWidth="1.8"/>
-              <rect x="26" y="59" width="7" height="16" rx="1" fill={bg} stroke={fg} strokeWidth="1.8"/>
-              <rect x="13" y="73" width="10" height="5" rx="2" fill={fg}/>
-              <rect x="24" y="73" width="10" height="5" rx="2" fill={fg}/>
-              <rect x="20" y="30" width="8" height="8" fill={bg} stroke={fg} strokeWidth="1.5"/>
-              <rect x="10" y="8" width="28" height="26" rx="3" fill={bg} stroke={fg} strokeWidth="2.2"/>
-              <rect x="10" y="8" width="28" height="8" rx="3" fill={fg}/>
-              <rect x="10" y="12" width="5" height="8" fill={fg}/>
-              <rect x="33" y="12" width="5" height="8" fill={fg}/>
-              <line x1="16" y1="20" x2="21" y2="25" stroke={fg} strokeWidth="1.8"/>
-              <line x1="21" y1="20" x2="16" y2="25" stroke={fg} strokeWidth="1.8"/>
-              <line x1="27" y1="20" x2="32" y2="25" stroke={fg} strokeWidth="1.8"/>
-              <line x1="32" y1="20" x2="27" y2="25" stroke={fg} strokeWidth="1.8"/>
-              <line x1="19" y1="29" x2="29" y2="29" stroke={fg} strokeWidth="1.5"/>
-              {isDark && (
-                <>
-                  <rect x="1" y="42" width="3" height="14" rx="1" fill="#aaa" stroke={fg} strokeWidth="1"/>
-                  <rect x="0" y="40" width="5" height="4" rx="1" fill="#666" stroke={fg} strokeWidth="1"/>
-                </>
-              )}
-            </svg>
+          {/* Sketchbook — middle right */}
+          <div style={{ transform: `translate(${tilt.x * 0.3 * 12}px, ${tilt.y * 0.6 * 12}px)`, position: 'absolute', top: '49%', right: '14%', transition: 'transform 0.12s ease-out' }}>
+            <SceneItem label="Projects" isDark={isDark} href="#about">
+              <div style={{ position: 'relative', width: '60px', height: '75px' }}>
+                <Image
+                  src="/assets/sketch_book.png"
+                  alt="Sketchbook"
+                  fill
+                  style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+                />
+              </div>
+            </SceneItem>
           </div>
 
-          {/* BOTTOM ROW */}
-          <div style={layer(2)} className="flex justify-center gap-12 w-full">
-            <SceneItem label="Mewo" isDark={isDark}>
-              <svg width="50" height="44" viewBox="0 0 50 44" overflow="visible">
-                <ellipse cx="25" cy="32" rx="16" ry="11" fill={fg}/>
-                <path d="M40,34 Q52,28 48,20 Q46,15 42,18" fill="none" stroke={fg} strokeWidth="3" strokeLinecap="round"/>
-                <circle cx="22" cy="17" r="13" fill={fg}/>
-                <polygon points="10,10 6,0 16,8" fill={fg}/>
-                <polygon points="34,10 38,0 28,8" fill={fg}/>
-                <polygon points="11,9 8,3 15,8" fill={isDark ? '#555' : '#888'}/>
-                <polygon points="33,9 36,3 29,8" fill={isDark ? '#555' : '#888'}/>
-                <ellipse cx="17" cy="16" rx="3" ry="3.5" fill={bg}/>
-                <ellipse cx="27" cy="16" rx="3" ry="3.5" fill={bg}/>
-                <circle cx="17" cy="17" r="1.8" fill={fg}/>
-                <circle cx="27" cy="17" r="1.8" fill={fg}/>
-                <circle cx="17.8" cy="15.5" r="0.7" fill={bg}/>
-                <circle cx="27.8" cy="15.5" r="0.7" fill={bg}/>
-                <polygon points="22,21 20,23 24,23" fill={bg} opacity="0.8"/>
-                <line x1="10" y1="21" x2="18" y2="22" stroke={bg} strokeWidth="0.8" opacity="0.6"/>
-                <line x1="9" y1="23" x2="17" y2="23" stroke={bg} strokeWidth="0.8" opacity="0.6"/>
-                <line x1="27" y1="22" x2="35" y2="21" stroke={bg} strokeWidth="0.8" opacity="0.6"/>
-                <line x1="27" y1="23" x2="35" y2="23" stroke={bg} strokeWidth="0.8" opacity="0.6"/>
-              </svg>
-            </SceneItem>
-
+          {/* Tissue Box — below sketchbook */}
+          <div style={{ transform: `translate(${tilt.x * 1 * 12}px, ${tilt.y * 0.6 * 12}px)`, position: 'absolute', top: '60%', right: '7%', transition: 'transform 0.12s ease-out' }}>
             <SceneItem label="Tissue Box" isDark={isDark} href="#contact">
-              <svg width="52" height="48" viewBox="0 0 52 48" overflow="visible">
-                <rect x="2" y="14" width="48" height="32" rx="2" fill={bg} stroke={fg} strokeWidth="2.5"/>
-                <rect x="2" y="10" width="48" height="8" rx="2" fill={isDark ? '#222' : '#f0f0f0'} stroke={fg} strokeWidth="2"/>
-                <ellipse cx="26" cy="14" rx="13" ry="5" fill={bg} stroke={fg} strokeWidth="2"/>
-                <path d="M19,14 Q22,6 26,4 Q30,6 33,14" fill={bg} stroke={fg} strokeWidth="1.5"/>
-                <line x1="10" y1="20" x2="10" y2="42" stroke={fg} strokeWidth="1" opacity="0.1"/>
-                <line x1="20" y1="18" x2="20" y2="44" stroke={fg} strokeWidth="1" opacity="0.1"/>
-                <line x1="32" y1="18" x2="32" y2="44" stroke={fg} strokeWidth="1" opacity="0.1"/>
-                <line x1="42" y1="20" x2="42" y2="42" stroke={fg} strokeWidth="1" opacity="0.1"/>
-              </svg>
-            </SceneItem>
-
-            <SceneItem label="Sketchbook" isDark={isDark} href="#about">
-              <svg width="48" height="60" viewBox="0 0 48 60" overflow="visible">
-                <rect x="4" y="2" width="40" height="54" rx="2" fill={isDark ? '#1a1a1a' : '#f5f0e8'} stroke={fg} strokeWidth="2.5"/>
-                <rect x="4" y="2" width="8" height="54" rx="2" fill={isDark ? '#333' : '#e8d5b0'} stroke={fg} strokeWidth="2"/>
-                <line x1="4" y1="12" x2="12" y2="12" stroke={fg} strokeWidth="1" opacity="0.3"/>
-                <line x1="4" y1="22" x2="12" y2="22" stroke={fg} strokeWidth="1" opacity="0.3"/>
-                <line x1="4" y1="32" x2="12" y2="32" stroke={fg} strokeWidth="1" opacity="0.3"/>
-                <line x1="4" y1="42" x2="12" y2="42" stroke={fg} strokeWidth="1" opacity="0.3"/>
-                <line x1="16" y1="14" x2="40" y2="14" stroke={fg} strokeWidth="1" opacity="0.2"/>
-                <line x1="16" y1="20" x2="40" y2="20" stroke={fg} strokeWidth="1" opacity="0.2"/>
-                <line x1="16" y1="26" x2="40" y2="26" stroke={fg} strokeWidth="1" opacity="0.2"/>
-                <line x1="16" y1="32" x2="38" y2="32" stroke={fg} strokeWidth="1" opacity="0.2"/>
-                <line x1="16" y1="38" x2="40" y2="38" stroke={fg} strokeWidth="1" opacity="0.2"/>
-                <polygon points="28,44 29.5,48 33,48 30.5,50.5 31.5,54 28,52 24.5,54 25.5,50.5 23,48 26.5,48"
-                  fill="none" stroke={fg} strokeWidth="1" opacity="0.3"/>
-              </svg>
+              <div style={{ position: 'relative', width: '65px', height: '60px' }}>
+                <Image
+                  src="/assets/tissue_box.png"
+                  alt="Tissue Box"
+                  fill
+                  style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+                />
+              </div>
             </SceneItem>
           </div>
-        </div>
 
-        <div style={layer(0.8)}>
-          <p style={{ color: fg }} className="text-xs italic opacity-30 mt-2">
-            {isDark ? 'There is no way out.' : 'You have been living here for as long as you can remember.'}
-          </p>
+          {/* Mewo — lower left */}
+          <div style={{ transform: `translate(${tilt.x * 1 * 12}px, ${tilt.y * 0.6 * 12}px)`, position: 'absolute', bottom: '20%', left: '6%', transition: 'transform 0.12s ease-out' }}>
+            <SceneItem label="Github Repo" isDark={isDark} hoverSrc="/assets/mewo_hover.png">
+              <div style={{ position: 'relative', width: '110px', height: '98px' }}>
+                <Image
+                  src="/assets/mewo.png"
+                  alt="Mewo"
+                  fill
+                  style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+                />
+              </div>
+            </SceneItem>
+          </div>
+
+          {/* OMORI character — center bottom */}
+          <div
+            style={{
+              transform: `translate(${tilt.x * 2.5 * 12}px, ${tilt.y * 2.5 * 12}px) translateX(-50%)`,
+              position: 'absolute',
+              bottom: '-20%',
+              left: '50%',
+              display: 'inline-flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              cursor: `url('/assets/cursor.png') 4 4, pointer`,
+              transition: 'transform 0.12s ease-out',
+            }}
+            onMouseEnter={() => setCharHovered(true)}
+            onMouseLeave={() => setCharHovered(false)}
+            onTouchStart={() => setCharHovered(true)}
+            onTouchEnd={() => setTimeout(() => setCharHovered(false), 800)}
+          >
+            {charHovered && (
+              <div style={{
+                position: 'absolute',
+                bottom: 'calc(100% + 8px)',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: bg,
+                border: `2px solid ${fg}`,
+                boxShadow: 'none',
+                padding: '3px 10px',
+                fontSize: '10px',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+                color: fg,
+                fontFamily: 'inherit',
+                zIndex: 20,
+                pointerEvents: 'none',
+              }}>
+                About Me
+                <div style={{
+                  position: 'absolute', top: '100%', left: '50%',
+                  transform: 'translateX(-50%)', width: 0, height: 0,
+                  borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
+                  borderTop: `6px solid ${fg}`,
+                }}/>
+                <div style={{
+                  position: 'absolute', top: 'calc(100% - 2px)', left: '50%',
+                  transform: 'translateX(-50%)', width: 0, height: 0,
+                  borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
+                  borderTop: `5px solid ${bg}`, zIndex: 1,
+                }}/>
+              </div>
+            )}
+            <div style={{ position: 'relative', width: '300px', height: '610px' }}>
+              <Image
+                src="/assets/char.png"
+                alt="Character"
+                fill
+                style={{
+                  imageRendering: 'pixelated',
+                  objectFit: 'contain',
+                  transform: charHovered ? 'translateY(-4px)' : 'translateY(0)',
+                  transition: 'transform 0.15s ease',
+                }}
+              />
+            </div>
+          </div>
+
         </div>
       </div>
     </main>
@@ -302,13 +351,14 @@ export default function Home() {
 
 // ─── SceneItem ────────────────────────────────────────────────────────────────
 function SceneItem({
-  label, isDark, children, href, onClick,
+  label, isDark, children, href, onClick, hoverSrc,
 }: {
   label: string;
   isDark: boolean;
   children: React.ReactNode;
   href?: string;
   onClick?: () => void;
+  hoverSrc?: string;   // optional hover image swap
 }) {
   const [hovered, setHovered] = useState(false);
   const fg = isDark ? 'white' : 'black';
@@ -321,18 +371,15 @@ function SceneItem({
         position: 'relative',
         transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
         transition: 'transform 0.15s ease',
-        // 🔧 These three lines are the core mobile fix
         WebkitTapHighlightColor: 'transparent',
         touchAction: 'manipulation',
         userSelect: 'none',
+        cursor: `url('/assets/cursor.png') 4 4, pointer`,
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onTouchStart={() => setHovered(true)}
-      onTouchEnd={() => {
-        setTimeout(() => setHovered(false), 600);
-        onClick?.();
-      }}
+      onTouchEnd={() => { setTimeout(() => setHovered(false), 600); onClick?.(); }}
       onClick={onClick}
     >
       {hovered && (
@@ -341,7 +388,7 @@ function SceneItem({
           bottom: 'calc(100% + 8px)', left: '50%',
           transform: 'translateX(-50%)',
           backgroundColor: bg, border: `2px solid ${fg}`,
-          boxShadow: `2px 2px 0px ${fg}`,
+          boxShadow: 'none',
           padding: '3px 10px', fontSize: '10px',
           letterSpacing: '0.15em', textTransform: 'uppercase',
           whiteSpace: 'nowrap', color: fg,
@@ -362,11 +409,27 @@ function SceneItem({
           }}/>
         </div>
       )}
-      {children}
-      <div style={{
-        width: '55%', height: '4px', background: fg,
-        borderRadius: '50%', opacity: 0.07, marginTop: '3px',
-      }}/>
+
+      {/* Swap to hoverSrc image on hover if provided */}
+      {hoverSrc ? (
+        <div style={{ position: 'relative' }}>
+          {/* Clone children but hidden, swap with hover img */}
+          <div style={{ opacity: hovered ? 0 : 1, transition: 'opacity 0.1s' }}>
+            {children}
+          </div>
+          {hovered && (
+            <div style={{ position: 'absolute', inset: 0 }}>
+              <Image
+                src={hoverSrc}
+                alt="hover"
+                fill
+                style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+              />
+            </div>
+          )}
+        </div>
+      ) : children}
+
     </div>
   );
 

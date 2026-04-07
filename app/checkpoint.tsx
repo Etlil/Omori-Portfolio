@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from 'react';
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [gyroActive, setGyroActive] = useState(false);
   const smoothRef = useRef({ x: 0, y: 0 });
 
   const bg = isDark ? 'black' : 'white';
@@ -19,6 +18,13 @@ export default function Home() {
     };
     window.addEventListener('mousemove', handleMouse);
     return () => window.removeEventListener('mousemove', handleMouse);
+  }, []);
+
+  useEffect(() => {
+    const isIOS = typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function';
+    if (!isIOS) {
+      startGyro();
+    }
   }, []);
 
   const startGyro = () => {
@@ -38,12 +44,10 @@ export default function Home() {
         .then(res => {
           if (res === 'granted') {
             window.addEventListener('deviceorientation', handler, true);
-            setGyroActive(true);
           }
         }).catch(console.error);
     } else {
       window.addEventListener('deviceorientation', handler, true);
-      setGyroActive(true);
     }
   };
 
@@ -69,39 +73,7 @@ export default function Home() {
         }}
       />
 
-      {/* 🔧 Enable Motion button — uses a real <button> tag */}
-      {!gyroActive && (
-        <button
-          onClick={startGyro}
-          onTouchEnd={(e) => {
-            e.preventDefault(); // 🔧 key fix — stops the 300ms delay and ghost click
-            startGyro();
-          }}
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: 'transparent',
-            border: `2px solid ${fg}`,
-            color: fg,
-            padding: '10px 20px',
-            fontSize: '10px',
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            fontFamily: 'inherit',
-            zIndex: 999,
-            boxShadow: `2px 2px 0px ${fg}`,
-            WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation',
-            minWidth: '44px',
-            minHeight: '44px',
-          }}
-          className="md:hidden"
-        >
-          Enable Motion
-        </button>
-      )}
+
 
       {/* 🔧 z-index: 1 ensures this whole content block is above the noise div */}
       <div
@@ -341,7 +313,7 @@ function SceneItem({
           bottom: 'calc(100% + 8px)', left: '50%',
           transform: 'translateX(-50%)',
           backgroundColor: bg, border: `2px solid ${fg}`,
-          boxShadow: `2px 2px 0px ${fg}`,
+          boxShadow: 'none',
           padding: '3px 10px', fontSize: '10px',
           letterSpacing: '0.15em', textTransform: 'uppercase',
           whiteSpace: 'nowrap', color: fg,

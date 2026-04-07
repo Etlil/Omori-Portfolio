@@ -325,8 +325,8 @@ export default function Home() {
               alignItems: 'center',
               cursor: `url('/assets/cursor.png') 4 4, pointer`,
               transition: 'transform 0.12s ease-out',
-              minWidth: '120px',
-              minHeight: '120px',
+              minWidth: '100px',
+              minHeight: '100px',
               padding: '10px',
             }}
             onMouseEnter={() => setCharHovered(true)}

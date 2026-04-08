@@ -122,49 +122,79 @@ export default function Home() {
   });
 
 return (
-    <div 
-      style={{ backgroundColor: bg, transition: 'background-color 0.7s ease' }} 
-      className="fixed inset-0 overflow-hidden"
+  <div 
+    style={{ backgroundColor: bg, transition: 'background-color 0.7s ease' }} 
+    className="fixed inset-0 overflow-hidden"
+  >
+    <main
+      style={{
+        backgroundColor: bg,
+        color: fg,
+        cursor: `url('/assets/cursor.png') 4 4, pointer`,
+        height: '100vh',
+        width: '100vw',
+      }}
+      className="flex flex-col items-center justify-center transition-colors duration-700 relative"
     >
-      <main
-        style={{
-          backgroundColor: bg,
-          color: fg,
-          cursor: `url('/assets/cursor.png') 4 4, pointer`,
-          height: '100vh',
-          width: '100vw',
-        }}
-        className="flex flex-col items-center justify-center transition-colors duration-700 relative"
-      >
-        {/* Background noise */}
-        <div style={{
-          opacity: isDark ? 0.1 : 0.03,
-          position: 'absolute', inset: 0,
-          backgroundImage: "url('https://www.transparenttextures.com/patterns/asfalt-light.png')",
-          pointerEvents: 'none', zIndex: 0,
-        }}/>
+      {/* 1. Background noise */}
+      <div style={{
+        opacity: isDark ? 0.1 : 0.03,
+        position: 'absolute', inset: 0,
+        backgroundImage: "url('https://www.transparenttextures.com/patterns/asfalt-light.png')",
+        pointerEvents: 'none', zIndex: 0,
+      }}/>
 
-        {/* Blanket/Floor SVG */}
+      {/* 2. Header Title */}
+      <div style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 30 }}>
+        <h1 style={{ color: fg, opacity: 0.4 }} className="text-base font-bold tracking-[0.25em] uppercase">My Portfolio</h1>
+      </div>
+
+      {/* 3. THE LIGHTBULB (Stays hanging from ceiling) */}
+      <div
+        style={{
+          transform: `translate(${tilt.x * 12}px, ${tilt.y * 12}px) translateY(${bulbHovered ? '-6px' : '0'})`,
+          position: 'absolute', 
+          top: isMobile ? '15%' : '10%', 
+          right: isMobile ? '15%' : '25%', 
+          zIndex: 40,
+          cursor: `url('/assets/cursor.png') 4 4, pointer`,
+          transition: 'all 0.4s ease',
+        }}
+        onClick={() => setIsDark(!isDark)}
+      >
+        {bulbHovered && <Tooltip text={isDark ? 'Light' : 'Dark'} bg={bg} fg={fg} />}
         <div 
-          style={{ 
-            position: 'absolute', 
-            // This moves it up 120px on mobile, but keeps it at 0 on PC
-            bottom: isMobile ? '120px' : '0', 
-            left: 0, 
-            right: 0, 
-            height: '300px', 
-            zIndex: 1, 
-            pointerEvents: 'none',
-            transition: 'bottom 0.3s ease' // Smooth transition if resizing
-          }}
+          style={{ position: 'relative', width: isMobile ? '50px' : '60px', height: '70px' }} 
+          onMouseEnter={() => setBulbHovered(true)} 
+          onMouseLeave={() => setBulbHovered(false)}
+          onTouchStart={() => setBulbHovered(true)}
         >
-          <svg 
-            width="100%" 
-            height="140" 
-            viewBox="0 0 400 140" 
-            preserveAspectRatio="none" 
-            style={{ display: 'block' }}
-          >
+          <Image src={isDark ? '/assets/darkbulb.png' : '/assets/lightbulb.png'} alt="Bulb" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+          <svg style={{ position: 'absolute', top: isMobile ? '-400px' : '-120px', left: '50%', transform: 'translateX(-50%)', overflow: 'visible' }} width="2" height={isMobile ? "400" : "120"}>
+            <line x1="1" y1="0" x2="1" y2={isMobile ? "410" : "130"} stroke={fg} strokeWidth="2" />
+          </svg>
+        </div>
+      </div>
+
+      {/* 4. THE SCENE CONTAINER (The "Island") */}
+      {/* This container moves everything (floor + items) together */}
+      <div 
+        style={{ 
+          position: 'absolute', 
+          bottom: isMobile ? '25%' : '5%', // Moves the whole room up on mobile
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          width: isMobile ? '95%' : '100%',
+          maxWidth: '800px',
+          height: '400px', // Tall enough to hold floating door + floor
+          zIndex: 10,
+          pointerEvents: 'none',
+          transition: 'bottom 0.4s ease'
+        }}
+      >
+        {/* The Floor SVG (Anchored to bottom of container) */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '140px' }}>
+          <svg width="100%" height="100%" viewBox="0 0 400 140" preserveAspectRatio="none">
             <defs>
               <pattern id="stripes" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(90)">
                 <line x1="0" y1="0" x2="0" y2="18" stroke={fg} strokeWidth="1" opacity="0.07"/>
@@ -176,204 +206,94 @@ return (
           </svg>
         </div>
 
-        <div className="relative w-full h-full max-w-2xl flex items-center justify-center">
-          
-          {/* Header Title */}
-          <div style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 30 }}>
-            <h1 style={{ color: fg, opacity: 0.4 }} className="text-base font-bold tracking-[0.25em] uppercase">My Portfolio</h1>
-          </div>
+        {/* --- ITEMS PINNED TO THIS CONTAINER --- */}
 
-          {/* Door — Middle Left on Mobile */}
-          <div style={{ 
-            position: 'absolute', 
-            top: isMobile ? '25%' : '10%', // Moved down to 30% on mobile
-            left: isMobile ? '5%' : '15%', 
-            zIndex: 2,
-            transition: 'all 0.4s ease'
-          }}>
-            <SceneItem label="Door" isDark={isDark}>
-              <div style={{ 
-                position: 'relative', 
-                width: isMobile ? '160px' : '200px', 
-                height: isMobile ? '178px' : '233px' 
-              }}>
-                <Image 
-                  src={isDark ? '/assets/door_dark.png' : '/assets/door_light.jpg'} 
-                  alt="Door" 
-                  fill 
-                  style={{ imageRendering: 'pixelated', objectFit: 'contain' }} 
-                />
-              </div>
-            </SceneItem>
-          </div>
-
-          {/* Light Bulb — Middle Right on Mobile */}
-          <div
-            style={{
-              transform: `translate(${tilt.x * 12}px, ${tilt.y * 12}px) translateY(${bulbHovered ? '-6px' : '0'})`,
-              position: 'absolute', 
-              top: isMobile ? '28%' : '10%', // Moved down to 28% on mobile
-              right: isMobile ? '20%' : '25%', 
-              zIndex: 15,
-              cursor: `url('/assets/cursor.png') 4 4, pointer`,
-              transition: 'all 0.4s ease',
-            }}
-            onClick={() => setIsDark(!isDark)}
-          >
-            {bulbHovered && <Tooltip text={isDark ? 'Light' : 'Dark'} bg={bg} fg={fg} />}
-            
-            <div 
-              style={{ 
-                position: 'relative', 
-                width: isMobile ? '50px' : '60px', 
-                height: isMobile ? '70px' : '80px' 
-              }} 
-              onMouseEnter={() => setBulbHovered(true)} 
-              onMouseLeave={() => setBulbHovered(false)}
-              onTouchStart={() => setBulbHovered(true)}
-            >
-              <Image 
-                src={isDark ? '/assets/darkbulb.png' : '/assets/lightbulb.png'} 
-                alt="Bulb" 
-                fill 
-                style={{ imageRendering: 'pixelated', objectFit: 'contain' }} 
-              />
-              
-              {/* THE LONG WIRE */}
-              <svg 
-                style={{ 
-                  position: 'absolute', 
-                  // On mobile, the wire needs to go up 400px to ensure it hits the top
-                  top: isMobile ? '-400px' : '-120px', 
-                  left: '50%', 
-                  transform: 'translateX(-50%)', 
-                  overflow: 'visible' 
-                }} 
-                width="2" 
-                height={isMobile ? "400" : "120"}
-              >
-                <line 
-                  x1="1" y1="0" 
-                  x2="1" 
-                  // Extension to make sure it tucks into the bulb image
-                  y2={isMobile ? "410" : "130"} 
-                  stroke={fg} 
-                  strokeWidth="2" 
-                />
-              </svg>
+        {/* Door (Floating above back of blanket) */}
+        <div style={{ position: 'absolute', top: '0%', left: '10%', pointerEvents: 'auto', zIndex: 2 }}>
+          <SceneItem label="Door" isDark={isDark}>
+            <div style={{ position: 'relative', width: isMobile ? '130px' : '180px', height: isMobile ? '150px' : '210px' }}>
+              <Image src={isDark ? '/assets/door_dark.png' : '/assets/door_light.jpg'} alt="Door" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
             </div>
-          </div>
-
-          {/* Laptop */}
-          <div style={{ 
-            transform: `translate(${tilt.x * 5}px, ${tilt.y * 8}px)`, 
-            position: 'absolute', 
-            top: isMobile ? '48%' : '47%', // Moved up from 55%
-            left: isMobile ? '12%' : '15%', 
-            zIndex: 20, 
-            transition: 'transform 0.12s ease-out, top 0.3s ease' 
-          }}>
-            <SceneItem label="Contacts" isDark={isDark} href="#projects" hoverSrc="/assets/laptop_hover.png">
-              <div style={{ position: 'relative', width: isMobile ? '65px' : '90px', height: '70px' }}>
-                <Image src="/assets/laptop.png" alt="Laptop" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
-              </div>
-            </SceneItem>
-          </div>
-
-          {/* Sketchbook */}
-          <div style={{ 
-            transform: `translate(${tilt.x * 5}px, ${tilt.y * 8}px)`, 
-            position: 'absolute', 
-            top: isMobile ? '48%' : '49%', // Moved up from 57%
-            right: isMobile ? '7%' : '14%', 
-            zIndex: 20, 
-            transition: 'transform 0.12s ease-out, top 0.3s ease' 
-          }}>
-            <SceneItem label="Projects" isDark={isDark} href="#about">
-              <div style={{ position: 'relative', width: isMobile ? '45px' : '60px', height: '75px' }}>
-                <Image src="/assets/sketch_book.png" alt="Sketch" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
-              </div>
-            </SceneItem>
-          </div>
-
-          {/* Mewo */}
-          <div style={{ 
-            transform: `translate(${tilt.x * 12}px, ${tilt.y * 8}px)`, 
-            position: 'absolute', 
-            top: isMobile ? '59%' : '58%', // Moved up from 64%
-            left: isMobile ? '5%' : '6%', 
-            zIndex: 20, 
-            transition: 'transform 0.12s ease-out, top 0.3s ease' 
-          }}>
-            <SceneItem label="Mewo" isDark={isDark} hoverSrc="/assets/mewo_hover.png">
-              <div style={{ position: 'relative', width: isMobile ? '75px' : '100px', height: '90px' }}>
-                <Image src="/assets/mewo.png" alt="Mewo" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
-              </div>
-            </SceneItem>
-          </div>
-
-          {/* Tissue Box */}
-          <div style={{ 
-            transform: `translate(${tilt.x * 12}px, ${tilt.y * 8}px)`, 
-            position: 'absolute', 
-            top: isMobile ? '55%' : '60%', // Moved up from 66%
-            right: isMobile ? '10%' : '7%', 
-            zIndex: 20, 
-            transition: 'transform 0.12s ease-out, top 0.3s ease' 
-          }}>
-            <SceneItem label="Skills" isDark={isDark} href="#contact">
-              <div style={{ position: 'relative', width: isMobile ? '50px' : '65px', height: '60px' }}>
-                <Image src="/assets/tissue_box.png" alt="Tissue Box" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
-              </div>
-            </SceneItem>
-          </div>
-
-          {/* OMORI Character — Hitbox fixed with scaling */}
-          <div
-            style={{
-              // Parallax: Less intense on mobile (15px) than PC (30px)
-              transform: `translate(${tilt.x * (isMobile ? 15 : 30)}px, ${tilt.y * (isMobile ? 15 : 30)}px) translateX(-50%)`,
-              
-              position: 'absolute', 
-              
-              // Bottom: Move him slightly higher on mobile (-5% or -10%) so he's more visible
-              bottom: isMobile ? '20%' : '-15%', 
-              
-              left: '50%',
-              zIndex: 5, 
-              pointerEvents: 'none', 
-              transition: 'transform 0.12s ease-out, bottom 0.3s ease',
-            }}
-          >
-            <div 
-              style={{ 
-                position: 'relative', 
-                width: isMobile ? '200px' : '300px', // Scaling the hitbox
-                height: isMobile ? '350px' : '610px', 
-                pointerEvents: 'auto', // Only character is clickable
-                cursor: `url('/assets/cursor.png') 4 4, pointer`,
-              }}
-              onMouseEnter={() => setCharHovered(true)}
-              onMouseLeave={() => setCharHovered(false)}
-            >
-              {charHovered && <Tooltip text="About Me" bg={bg} fg={fg} />}
-              <Image
-                src="/assets/char.png"
-                alt="Character"
-                fill
-                style={{
-                  imageRendering: 'pixelated', objectFit: 'contain',
-                  transform: charHovered ? 'translateY(-4px)' : 'translateY(0)',
-                  transition: 'transform 0.15s ease',
-                }}
-              />
-            </div>
-          </div>
-
+          </SceneItem>
         </div>
-      </main>
-    </div>
-  );
+
+        {/* Laptop (Top Left of carpet) */}
+        <div style={{ position: 'absolute', bottom: '20%', left: '10%', pointerEvents: 'auto', zIndex: 20, transform: `translate(${tilt.x * 5}px, ${tilt.y * 5}px)` }}>
+          <SceneItem label="Contacts" isDark={isDark} href="#projects" hoverSrc="/assets/laptop_hover.png">
+            <div style={{ position: 'relative', width: isMobile ? '60px' : '80px', height: '60px' }}>
+              <Image src="/assets/laptop.png" alt="Laptop" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+            </div>
+          </SceneItem>
+        </div>
+
+        {/* Sketchbook (Top Right of carpet) */}
+        <div style={{ position: 'absolute', bottom: '20%', right: '10%', pointerEvents: 'auto', zIndex: 20, transform: `translate(${tilt.x * 5}px, ${tilt.y * 5}px)` }}>
+          <SceneItem label="Projects" isDark={isDark} href="#about">
+            <div style={{ position: 'relative', width: isMobile ? '45px' : '55px', height: '60px' }}>
+              <Image src="/assets/sketch_book.png" alt="Sketch" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+            </div>
+          </SceneItem>
+        </div>
+
+        {/* Mewo (Bottom Left of carpet) */}
+        <div style={{ position: 'absolute', bottom: '-5%', left: '0%', pointerEvents: 'auto', zIndex: 20, transform: `translate(${tilt.x * 10}px, ${tilt.y * 8}px)` }}>
+          <SceneItem label="Mewo" isDark={isDark} hoverSrc="/assets/mewo_hover.png">
+            <div style={{ position: 'relative', width: isMobile ? '70px' : '90px', height: '70px' }}>
+              <Image src="/assets/mewo.png" alt="Mewo" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+            </div>
+          </SceneItem>
+        </div>
+
+        {/* Tissue Box (Bottom Right of carpet) */}
+        <div style={{ position: 'absolute', bottom: '5%', right: '5%', pointerEvents: 'auto', zIndex: 20, transform: `translate(${tilt.x * 10}px, ${tilt.y * 8}px)` }}>
+          <SceneItem label="Skills" isDark={isDark} href="#contact">
+            <div style={{ position: 'relative', width: isMobile ? '50px' : '60px', height: '50px' }}>
+              <Image src="/assets/tissue_box.png" alt="Tissue" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+            </div>
+          </SceneItem>
+        </div>
+      </div>
+
+      {/* 5. OMORI CHARACTER (Stays separate to overlap the floor correctly) */}
+      <div
+        style={{
+          transform: `translate(${tilt.x * (isMobile ? 15 : 30)}px, ${tilt.y * (isMobile ? 15 : 30)}px) translateX(-50%)`,
+          position: 'absolute', 
+          bottom: isMobile ? '5%' : '-15%', 
+          left: '50%',
+          zIndex: 25, // Higher than the scene items
+          pointerEvents: 'none', 
+          transition: 'transform 0.12s ease-out, bottom 0.3s ease',
+        }}
+      >
+        <div 
+          style={{ 
+            position: 'relative', 
+            width: isMobile ? '200px' : '300px', 
+            height: isMobile ? '350px' : '610px', 
+            pointerEvents: 'auto', 
+            cursor: `url('/assets/cursor.png') 4 4, pointer`,
+          }}
+          onMouseEnter={() => setCharHovered(true)}
+          onMouseLeave={() => setCharHovered(false)}
+        >
+          {charHovered && <Tooltip text="About Me" bg={bg} fg={fg} />}
+          <Image
+            src="/assets/char.png"
+            alt="Character"
+            fill
+            style={{
+              imageRendering: 'pixelated', objectFit: 'contain',
+              transform: charHovered ? 'translateY(-4px)' : 'translateY(0)',
+              transition: 'transform 0.15s ease',
+            }}
+          />
+        </div>
+      </div>
+
+    </main>
+  </div>
+);
 }
 
 // ─── Reusable Tooltip Component ──────────────────────────────────────────

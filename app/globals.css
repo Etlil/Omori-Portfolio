@@ -27,3 +27,7 @@ a {
     cursor: url('/assets/cursor.png') 4 4, pointer !important;
   }
 }
+
+.font-omori {
+  font-family: var(--font-omori), "Courier New", Courier, monospace;
+}

@@ -20,13 +20,6 @@ export default function Home() {
     return () => window.removeEventListener('mousemove', handleMouse);
   }, []);
 
-  useEffect(() => {
-    const isIOS = typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function';
-    if (!isIOS) {
-      startGyro();
-    }
-  }, []);
-
   const startGyro = () => {
     const handler = (e: DeviceOrientationEvent) => {
       const targetX = Math.max(-1, Math.min(1, (e.gamma ?? 0) / 30));
@@ -50,6 +43,13 @@ export default function Home() {
       window.addEventListener('deviceorientation', handler, true);
     }
   };
+
+  useEffect(() => {
+    const isIOS = typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function';
+    if (!isIOS) {
+      startGyro();
+    }
+  }, []);
 
   const layer = (depth: number) => ({
     transform: `translate(${tilt.x * depth * 12}px, ${tilt.y * depth * 12}px)`,

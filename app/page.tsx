@@ -29,7 +29,7 @@ export default function Home() {
   const handleMewoClick = () => {
     setModalData({
       isOpen: true,
-      text: "Mewo has been very, very bad. What would you like to do?",
+      text: "Waiting for something to happen? How about visiting the GitHub repo instead?",
       choices: [
         {
           label: "VISIT GITHUB",
@@ -297,12 +297,7 @@ function Tooltip({ text, bg, fg }: { text: string; bg: string; fg: string }) {
 }
 
 function OmoriModal({
-  isOpen,
-  text,
-  choices,
-  onClose,
-  bg, 
-  fg  
+  isOpen, text, choices, onClose, bg, fg
 }: {
   isOpen: boolean;
   text: string;
@@ -313,86 +308,149 @@ function OmoriModal({
 }) {
   if (!isOpen) return null;
 
-  // We REVERSE the colors here:
-  // If the page background is white, the modal background is black.
-  const modalBg = fg; 
-  const modalFg = bg;
+  const modalBg = 'black';
+  const modalFg = 'white';
+
+  const DIALOGUE_HEIGHT = 160;
+  const BORDER = `3px solid ${modalFg}`;
+  // Double border effect: outer border + inset box-shadow gap
+  const DOUBLE_BORDER = {
+    border: BORDER,
+    boxShadow: `inset 0 0 0 3px ${modalBg}, inset 0 0 0 6px ${modalFg}`,
+  };
 
   return (
-    <div className="fixed inset-0 z-[9999]">
-      {/* Backdrop - subtle tint using the page's background color */}
-      <div 
-        className="absolute inset-0 opacity-40" 
-        style={{ backgroundColor: bg }} 
-        onClick={onClose} 
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+      <div
+        style={{
+          position: 'absolute', inset: 0,
+          touchAction: 'manipulation', // ← add
+          WebkitTapHighlightColor: 'transparent', // ← add
+        }}
+        onClick={onClose}
+        onTouchEnd={(e) => { e.preventDefault(); onClose(); }}
       />
 
-      {/* 1. CHOICES BOX - Fixed at Bottom 50%, Left 0% */}
-      <div 
-        style={{ 
-          position: 'fixed', 
-          bottom: '50%', 
-          right: '0%', 
-          zIndex: 101,
-          backgroundColor: modalBg,
-          borderColor: modalFg,
-          color: modalFg,
-          borderWidth: '3px',
-          // The Omori double-border effect
-          boxShadow: `0 0 0 3px ${modalBg}` 
-        }}
-        className="p-4 min-w-[240px]"
-      >
+      {/* CHOICES BOX — single container, all choices inside, flush right */}
+      <div style={{
+        position: 'fixed',
+        bottom: `${DIALOGUE_HEIGHT}px`,
+        right: 0,
+        zIndex: 101,
+        backgroundColor: modalBg,
+        ...DOUBLE_BORDER,
+        borderRight: 'none',
+        color: modalFg,
+        minWidth: '260px',
+        padding: '4px 0',
+        touchAction: 'manipulation', // ← add
+      }}>
         {choices.map((choice, index) => (
-          <div
+          <ChoiceItem
             key={index}
+            label={choice.label}
+            modalBg={modalBg}
+            modalFg={modalFg}
             onClick={(e) => { e.stopPropagation(); choice.action(); }}
-            className="group flex items-center gap-4 cursor-pointer py-2"
-          >
-            {/* THE HAND (Left side of text) */}
-            <div className="w-8 h-6 relative hidden group-hover:block shrink-0">
-              <Image
-                src="/assets/select_hover.png"
-                alt="select"
-                fill
-                style={{ 
-                  imageRendering: 'pixelated', 
-                  objectFit: 'contain',
-                  // Inverts the hand color so it's always visible against the modalBg
-                  filter: modalBg === 'black' ? 'invert(1)' : 'none' 
-                }}
-              />
-            </div>
-            
-            {/* Spacer for alignment when hand is hidden */}
-            <div className="w-8 h-6 group-hover:hidden shrink-0" />
-
-            <span className="text-xl uppercase tracking-widest font-omori whitespace-nowrap">
-              {choice.label}
-            </span>
-          </div>
+          />
         ))}
       </div>
 
-      {/* 2. DIALOGUE BOX - Fixed at Bottom 0% */}
-      <div
-        style={{ 
-          position: 'fixed', 
-          bottom: '0%', 
-          left: '0%', 
-          width: '100%', 
-          zIndex: 101,
-          backgroundColor: modalBg,
-          borderTop: `3px solid ${modalFg}`,
-          color: modalFg,
-          boxShadow: `0 -3px 0 3px ${modalBg}` 
-        }}
-        className="p-8 min-h-[160px]"
-      >
-        <p className="text-2xl font-omori leading-relaxed tracking-wider max-w-4xl mx-auto">
+      {/* DIALOGUE BOX — full width, fixed height, bottom */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: `${DIALOGUE_HEIGHT}px`,
+        zIndex: 101,
+        backgroundColor: modalBg,
+        ...DOUBLE_BORDER,
+        borderLeft: 'none',
+        borderRight: 'none',
+        borderBottom: 'none',
+        color: modalFg,
+        padding: '20px 28px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'flex-start',
+      }}>
+        <p style={{
+          fontFamily: 'var(--font-omori), sans-serif',
+          fontSize: '18px',
+          lineHeight: '1.7',
+          letterSpacing: '0.04em',
+          margin: 0,
+          whiteSpace: 'pre-line',
+        }}>
           {text}
         </p>
       </div>
+    </div>
+  );
+}
+
+function ChoiceItem({
+  label, modalBg, modalFg, onClick
+}: {
+  label: string;
+  modalBg: string;
+  modalFg: string;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onTouchStart={() => setHovered(true)}
+      onTouchEnd={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setHovered(false);
+        onClick(e as unknown as React.MouseEvent);
+      }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '8px 16px',
+        cursor: 'pointer',
+        WebkitTapHighlightColor: 'transparent',
+        userSelect: 'none',
+      }}
+    >
+      <div style={{
+        width: '36px',
+        height: '28px',
+        position: 'relative',
+        flexShrink: 0,
+        opacity: hovered ? 1 : 0,
+        transition: 'opacity 0.05s',
+      }}>
+        <Image
+          src="/assets/select_hover.png"
+          alt="select"
+          fill
+          style={{
+            imageRendering: 'pixelated',
+            objectFit: 'contain',
+            filter: modalBg === 'black' ? 'none' : 'invert(1)',
+          }}
+        />
+      </div>
+      <span style={{
+        fontFamily: 'var(--font-omori), sans-serif',
+        fontSize: '18px',
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+        color: modalFg,
+      }}>
+        {label}
+      </span>
     </div>
   );
 }
@@ -431,7 +489,12 @@ function SceneItem({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onTouchStart={() => setHovered(true)}
-      onTouchEnd={() => { setTimeout(() => setHovered(false), 600); onClick?.(); }}
+      onTouchEnd={(e) => {
+        e.preventDefault();  // ← add this
+        e.stopPropagation(); // ← add this
+        setTimeout(() => setHovered(false), 600);
+        onClick?.();
+      }}
       onClick={onClick}
     >
       {hovered && (

@@ -29,6 +29,8 @@ export default function Home() {
 
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => {
+      if (window.innerWidth < 768) return; 
+
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
       setTilt({ x, y });
@@ -73,11 +75,12 @@ export default function Home() {
 
   const startGyro = () => {
     const handler = (e: DeviceOrientationEvent) => {
-      if (isTouching) return;
       const targetX = Math.max(-1, Math.min(1, (e.gamma ?? 0) / 30));
       const targetY = Math.max(-1, Math.min(1, ((e.beta ?? 0) - 20) / 30));
+      
       smoothRef.current.x += (targetX - smoothRef.current.x) * 0.1;
       smoothRef.current.y += (targetY - smoothRef.current.y) * 0.1;
+      
       setTilt({ x: smoothRef.current.x, y: smoothRef.current.y });
       targetWobbleRef.current = { x: smoothRef.current.x * 18, y: smoothRef.current.y * 10 };
     };

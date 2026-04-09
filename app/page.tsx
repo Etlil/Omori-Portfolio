@@ -311,7 +311,7 @@ export default function Home() {
 
             {/* Base character */}
             <Image
-              src="/assets/me.png"
+              src={charHovered ? "/assets/me_hover.png" : "/assets/me.png"} // This line swaps the image
               alt="Character"
               fill
               style={{

@@ -10,16 +10,21 @@ export default function Home() {
   const [bulbHovered, setBulbHovered] = useState(false);
   const smoothRef = useRef({ x: 0, y: 0 });
   const targetWobbleRef = useRef({ x: 0, y: 0 });
+  
 
   const [modalData, setModalData] = useState<{
     isOpen: boolean;
     text: string;
     choices: { label: string; action: () => void }[];
+    onClose?: () => void;
   }>({
     isOpen: false,
     text: "",
     choices: []
   });
+
+  const charRef = useRef<HTMLDivElement>(null);
+  const [pupilOffset, setPupilOffset] = useState({ x: 0, y: 0 });
 
   const bg = isDark ? 'black' : 'white';
   const fg = isDark ? 'white' : 'black';
@@ -32,7 +37,7 @@ export default function Home() {
       text: "Waiting for something to happen? How about visiting the GitHub repo instead?",
       choices: [
         {
-          label: "VISIT GITHUB",
+          label: "VISIT GITHUB REPO",
           action: () => {
             window.open("https://github.com/Etlil/Omori-Portfolio", "_blank");
             setModalData(prev => ({ ...prev, isOpen: false }));
@@ -43,6 +48,32 @@ export default function Home() {
           action: () => setModalData(prev => ({ ...prev, isOpen: false }))
         }
       ]
+    });
+  };
+
+  const [desktopOpen, setDesktopOpen] = useState(false);
+
+  const handleLaptopClick = () => {
+    setDesktopOpen(true);
+  };
+
+  const handleDoorClick = () => {
+    setModalData({
+      isOpen: true,
+      text: "You stared at the door.....",
+      choices: [],  // no choices = just a dismiss dialog
+      onClose: () =>
+        setModalData({
+          isOpen: true,
+          text: "You want to get out from here?",
+          choices: [],
+          onClose: () =>
+            setModalData({
+              isOpen: true,
+              text: "Just close the web app bro",
+              choices: [],
+            }),
+        }),
     });
   };
 
@@ -61,6 +92,14 @@ export default function Home() {
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
       setTilt({ x, y });
       targetWobbleRef.current = { x: x * 18, y: y * 10 };
+
+      // Pupil tracking
+      if (charRef.current) {
+        setPupilOffset({
+          x: x * 4.25, // 50% of 12.5
+          y: y * 4.25, // 50% of 12.5
+        });
+      }
     };
     window.addEventListener('mousemove', handleMouse);
     return () => window.removeEventListener('mousemove', handleMouse);
@@ -75,6 +114,11 @@ export default function Home() {
       smoothRef.current.y += (targetY - smoothRef.current.y) * 0.1;
 
       setTilt({ x: smoothRef.current.x, y: smoothRef.current.y });
+
+      setPupilOffset({
+        x: smoothRef.current.x * 1.5, // 50% of 5
+        y: smoothRef.current.y * 1.5, // 50% of 5
+      });
       targetWobbleRef.current = { x: smoothRef.current.x * 18, y: smoothRef.current.y * 10 };
     };
     if (
@@ -115,6 +159,16 @@ export default function Home() {
       style={{ backgroundColor: bg, transition: 'background-color 0.7s ease' }}
       className="fixed inset-0 overflow-hidden"
     >
+      {modalData.isOpen && (
+        <div 
+          style={{ 
+            position: 'fixed', 
+            inset: 0, 
+            zIndex: 45, // Above everything except character and modal boxes
+          }} 
+          onClick={modalData.choices.length === 0 ? () => setModalData(prev => ({ ...prev, isOpen: false })) : undefined}
+        />
+      )}
       <main
         style={{
           backgroundColor: bg,
@@ -190,7 +244,7 @@ export default function Home() {
           </div>
 
           <div style={{ position: 'absolute', top: '0%', left: '10%', pointerEvents: 'auto', zIndex: 2 }}>
-            <SceneItem label="Door" isDark={isDark}>
+            <SceneItem label="Door" isDark={isDark} onClick={handleDoorClick}>
               <div style={{ position: 'relative', width: isMobile ? '130px' : '180px', height: isMobile ? '150px' : '210px' }}>
                 <Image src={isDark ? '/assets/door_dark.png' : '/assets/door_light.jpg'} alt="Door" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
               </div>
@@ -198,7 +252,7 @@ export default function Home() {
           </div>
 
           <div style={{ position: 'absolute', bottom: '20%', left: '10%', pointerEvents: 'auto', zIndex: 20, transform: `translate(${tilt.x * 5}px, ${tilt.y * 5}px)` }}>
-            <SceneItem label="Contacts" isDark={isDark} href="#projects" hoverSrc="/assets/laptop_hover.png">
+            <SceneItem label="Contacts/Socials" isDark={isDark} hoverSrc="/assets/laptop_hover.png" onClick={handleLaptopClick}>
               <div style={{ position: 'relative', width: isMobile ? '60px' : '80px', height: '60px' }}>
                 <Image src="/assets/laptop.png" alt="Laptop" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
               </div>
@@ -214,7 +268,7 @@ export default function Home() {
           </div>
 
           <div style={{ position: 'absolute', bottom: '-5%', left: '0%', pointerEvents: 'auto', zIndex: 20, transform: `translate(${tilt.x * 10}px, ${tilt.y * 8}px)` }}>
-            <SceneItem label="Mewo" isDark={isDark} hoverSrc="/assets/mewo_hover.png" onClick={handleMewoClick}>
+            <SceneItem label="GitHub" isDark={isDark} hoverSrc="/assets/mewo_hover.png" onClick={handleMewoClick}>
               <div style={{ position: 'relative', width: isMobile ? '70px' : '90px', height: '70px' }}>
                 <Image src="/assets/mewo.png" alt="Mewo" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
               </div>
@@ -242,6 +296,7 @@ export default function Home() {
           }}
         >
           <div
+            ref={charRef}
             style={{
               position: 'relative',
               width: isMobile ? '200px' : '300px',
@@ -253,8 +308,10 @@ export default function Home() {
             onMouseLeave={() => setCharHovered(false)}
           >
             {charHovered && <Tooltip text="About Me" bg={bg} fg={fg} />}
+
+            {/* Base character */}
             <Image
-              src="/assets/char.png"
+              src="/assets/me.png"
               alt="Character"
               fill
               style={{
@@ -263,6 +320,26 @@ export default function Home() {
                 transition: 'transform 0.15s ease',
               }}
             />
+
+            {/* Pupils — single png centered on face */}
+            <div style={{
+              position: 'absolute',
+              top: isMobile ? '9.5%' : '9%',
+              left: isMobile ? '42.5%' : '41%',
+              width: isMobile ? '14%' : '17%',
+              height: isMobile ? '3.8%' : '4.5%',
+              transform: `translate(${pupilOffset.x}px, ${pupilOffset.y + (charHovered ? -4 : 0)}px)`,
+              transition: 'transform 0.05s ease-out',
+              pointerEvents: 'none',
+            }}>
+              <Image
+                src="/assets/pupil.png"
+                alt=""
+                fill
+                style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+              />
+            </div>
+
           </div>
         </div>
 
@@ -272,11 +349,452 @@ export default function Home() {
         isOpen={modalData.isOpen}
         text={modalData.text}
         choices={modalData.choices}
-        onClose={() => setModalData(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => {
+          const nextClose = modalData.onClose;
+          if (nextClose) {
+            setModalData(prev => ({ ...prev, isOpen: false, onClose: undefined }));
+            nextClose();
+            return;
+          }
+          setModalData(prev => ({ ...prev, isOpen: false }));
+        }}
         bg={bg} 
         fg={fg} 
       />
+      <DesktopModal isOpen={desktopOpen} onClose={() => setDesktopOpen(false)} />
 
+    </div>
+  );
+}
+
+type ContactIcon = {
+  id: string;
+  label: string;
+  icon: string;
+  url: string;
+  dialog: string | string[];
+  choices: { label: string; action: string; value?: string }[];
+};
+
+function DesktopModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const [time, setTime] = useState('');
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const indexRef = useRef(0);
+  const [dialogIndex, setDialogIndex] = useState(0);
+  const [contacts, setContacts] = useState<{
+    job: ContactIcon[];
+    social: ContactIcon[];
+  }>({ job: [], social: [] });
+
+  useEffect(() => {
+    fetch('/assets/contacts.json')
+      .then(r => r.json())
+      .then(setContacts)
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const tick = () => {
+      const now = new Date();
+      let h = now.getHours();
+      const m = now.getMinutes().toString().padStart(2, '0');
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      setTime(`${h}:${m} ${ampm}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [isOpen]);
+
+  // Start typing when activeId changes
+  useEffect(() => {
+    if (!activeId) return;
+    const allIcons = [...contacts.job, ...contacts.social];
+    const active = allIcons.find(i => i.id === activeId);
+    if (!active) return;
+
+    const dialogs = Array.isArray(active.dialog) ? active.dialog : [active.dialog];
+    const currentText = dialogs[dialogIndex] ?? '';
+
+    setDisplayed('');
+    setDone(false);
+    setCopied(false);
+    indexRef.current = 0;
+
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      indexRef.current += 1;
+      setDisplayed(currentText.slice(0, indexRef.current));
+      if (indexRef.current >= currentText.length) {
+        setDone(true);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      }
+    }, 35);
+
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [activeId, dialogIndex, contacts]);
+
+  const skipTyping = () => {
+    const allIcons = [...contacts.job, ...contacts.social];
+    const active = allIcons.find(i => i.id === activeId);
+    if (!active) return;
+
+    const dialogs = Array.isArray(active.dialog) ? active.dialog : [active.dialog];
+    const currentText = dialogs[dialogIndex] ?? '';
+
+    if (!done) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setDisplayed(currentText);
+      setDone(true);
+    } else {
+      const isLastDialog = dialogIndex >= dialogs.length - 1;
+      if (!isLastDialog) {
+        setDialogIndex(prev => prev + 1);
+      }
+    }
+  };
+
+  const handleChoice = (choice: { label: string; action: string; value?: string }) => {
+    if (choice.action === 'open') {
+      const allIcons = [...contacts.job, ...contacts.social];
+      const active = allIcons.find(i => i.id === activeId);
+      if (active) window.open(active.url, '_blank');
+      setActiveId(null);
+    } else if (choice.action === 'copy' && choice.value) {
+      navigator.clipboard.writeText(choice.value).then(() => {
+        setCopied(true);
+        setTimeout(() => { setCopied(false); setActiveId(null); }, 1200);
+      });
+    } else if (choice.action === 'close') {
+      setActiveId(null);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const allIcons = [...contacts.job, ...contacts.social];
+  const active = allIcons.find(i => i.id === activeId);
+
+  const DIALOGUE_HEIGHT = 120;
+  const DOUBLE_BORDER = {
+    border: '3px solid #fff',
+    boxShadow: 'inset 0 0 0 3px #000, inset 0 0 0 6px #fff',
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9998,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <div style={{
+        width: 'min(820px, 95vw)',
+        height: 'min(560px, 85vh)',
+        background: '#1a1a1a',
+        border: '6px solid #111',
+        borderRadius: '8px',
+        boxShadow: '0 0 0 2px #555, 0 0 40px rgba(0,0,0,0.8)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        fontFamily: 'var(--font-omori), monospace',
+      }}>
+        <div style={{
+          flex: 1,
+          background: '#2a2a2a',
+          border: '4px solid #000',
+          margin: '8px',
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+
+          {/* Wallpaper */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: "url('https://www.transparenttextures.com/patterns/brick-wall.png')",
+            backgroundSize: '200px',
+            filter: 'grayscale(100%) contrast(1.2)',
+            opacity: 0.6,
+            pointerEvents: 'none', zIndex: 1,
+          }}/>
+
+          {/* CRT scanlines */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)',
+            pointerEvents: 'none', zIndex: 2,
+          }}/>
+
+          {/* Desktop icons */}
+          <div
+            onClick={activeId ? skipTyping : undefined}
+            onTouchEnd={activeId ? (e) => { e.preventDefault(); skipTyping(); } : undefined}
+            style={{
+              position: 'relative', zIndex: 15,
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '16px',
+              paddingBottom: activeId ? `${DIALOGUE_HEIGHT + 16}px` : '16px',
+              transition: 'padding-bottom 0.2s ease',
+              cursor: activeId ? 'pointer' : 'default',
+            }}
+          >
+            {/* LEFT — Job */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start' }}>
+              {contacts.job.map(icon => (
+                <DesktopIcon
+                  key={icon.id}
+                  label={icon.label}
+                  iconSrc={icon.icon}
+                  isActive={activeId === icon.id}
+                  onClick={() => { setDialogIndex(0); setActiveId(prev => prev === icon.id ? null : icon.id); }}
+                  onDoubleClick={() => { setDialogIndex(0); setActiveId(icon.id); }}
+                />
+              ))}
+            </div>
+
+            {/* RIGHT — Social */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end' }}>
+              {contacts.social.map(icon => (
+                <DesktopIcon
+                  key={icon.id}
+                  label={icon.label}
+                  iconSrc={icon.icon}
+                  isActive={activeId === icon.id}
+                  onClick={() => { setDialogIndex(0); setActiveId(prev => prev === icon.id ? null : icon.id); }}
+                  onDoubleClick={() => { setDialogIndex(0); setActiveId(icon.id); }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* OMORI modal inside desktop — choices box */}
+          {activeId && active && done && (() => {
+            const dialogs = Array.isArray(active.dialog) ? active.dialog : [active.dialog];
+            return dialogIndex >= dialogs.length - 1;
+          })() && (
+            <div style={{
+              position: 'absolute',
+              bottom: `${DIALOGUE_HEIGHT}px`,
+              right: 0,
+              zIndex: 70,
+              backgroundColor: '#000',
+              ...DOUBLE_BORDER,
+              borderRight: 'none',
+              color: '#fff',
+              minWidth: '200px',
+              padding: '4px 0',
+            }}>
+              {active.choices.map((choice, i) => (
+                <DesktopChoiceItem
+                  key={i}
+                  label={copied && choice.action === 'copy' ? 'COPIED!' : choice.label}
+                  onClick={() => handleChoice(choice)}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* OMORI dialogue box inside desktop */}
+          {activeId && active && (
+            <div
+              onClick={skipTyping}
+              onTouchEnd={(e) => { e.preventDefault(); skipTyping(); }}
+              style={{
+                position: 'absolute',
+                bottom: 0, left: 0, right: 0,
+                height: `${DIALOGUE_HEIGHT}px`,
+                zIndex: 70,
+                backgroundColor: '#000',
+                ...DOUBLE_BORDER,
+                borderLeft: 'none',
+                borderRight: 'none',
+                borderBottom: 'none',
+                color: '#fff',
+                padding: '14px 20px',
+                boxSizing: 'border-box',
+                display: 'flex',
+                alignItems: 'flex-start',
+                cursor: 'pointer',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <p style={{
+                fontFamily: 'var(--font-omori), sans-serif',
+                fontSize: '15px',
+                lineHeight: '1.6',
+                letterSpacing: '0.04em',
+                margin: 0,
+                whiteSpace: 'pre-line',
+                flex: 1,
+              }}>
+                {displayed}
+                {!done && (
+                  <span style={{
+                    display: 'inline-block',
+                    width: '2px', height: '1em',
+                    backgroundColor: '#fff',
+                    marginLeft: '2px',
+                    verticalAlign: 'text-bottom',
+                    animation: 'blink 0.7s step-end infinite',
+                  }}/>
+                )}
+              </p>
+
+              {/* Hand indicator */}
+              {done && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '10px', right: '12px',
+                  width: '30px', height: '24px',
+                  pointerEvents: 'none',
+                  animation: 'float 2s ease-in-out infinite',
+                }}>
+                  <Image
+                    src="/assets/select_hover.png"
+                    alt="next"
+                    fill
+                    style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Taskbar */}
+          <div style={{
+            position: 'relative', zIndex: 60,
+            background: '#888',
+            borderTop: '2px solid #ccc',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '3px 8px', height: '32px',
+            flexShrink: 0,
+          }}>
+            <button
+              onClick={onClose}
+              style={{
+                background: '#ccc',
+                border: '2px solid',
+                borderColor: '#fff #555 #555 #fff',
+                padding: '2px 10px',
+                fontFamily: 'inherit', fontSize: '13px',
+                fontWeight: 'bold', letterSpacing: '0.05em',
+                cursor: 'pointer', color: '#000', textTransform: 'uppercase',
+              }}
+            >SHUT DOWN</button>
+            <div style={{
+              background: '#aaa',
+              border: '2px solid',
+              borderColor: '#555 #fff #fff #555',
+              padding: '2px 10px',
+              fontSize: '12px', letterSpacing: '0.05em', color: '#000',
+            }}>{time}</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DesktopChoiceItem({ label, onClick }: { label: string; onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onTouchStart={() => setHovered(true)}
+      onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setHovered(false); onClick(); }}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '8px',
+        padding: '7px 14px', cursor: 'pointer',
+        WebkitTapHighlightColor: 'transparent',
+        userSelect: 'none',
+      }}
+    >
+      <div style={{
+        width: '28px', height: '22px',
+        position: 'relative', flexShrink: 0,
+        opacity: hovered ? 1 : 0,
+        transition: 'opacity 0.05s',
+      }}>
+        <Image
+          src="/assets/select_hover.png"
+          alt="select"
+          fill
+          style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+        />
+      </div>
+      <span style={{
+        fontFamily: 'var(--font-omori), sans-serif',
+        fontSize: '14px', letterSpacing: '0.1em',
+        textTransform: 'uppercase', whiteSpace: 'nowrap',
+        color: '#fff',
+      }}>{label}</span>
+    </div>
+  );
+}
+
+function DesktopIcon({
+  label, iconSrc, isActive, onClick, onDoubleClick
+}: {
+  label: string;
+  iconSrc: string;
+  isActive: boolean;
+  onClick: () => void;
+  onDoubleClick: () => void;
+}) {
+  const lastTap = useRef(0);
+
+  const handleTap = () => {
+    const now = Date.now();
+    if (now - lastTap.current < 300) {
+      onDoubleClick();
+    } else {
+      onClick();
+    }
+    lastTap.current = now;
+  };
+
+  return (
+    <div
+      onClick={handleTap}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        gap: '4px', cursor: 'pointer',
+        padding: '6px',
+        background: isActive ? 'rgba(255,255,255,0.2)' : 'transparent',
+        border: isActive ? '1px dotted #fff' : '1px solid transparent',
+        width: '64px',
+        WebkitTapHighlightColor: 'transparent',
+        userSelect: 'none',
+      }}
+    >
+      <div style={{ position: 'relative', width: '32px', height: '32px', flexShrink: 0 }}>
+        <Image
+          src={iconSrc}
+          alt={label}
+          fill
+          style={{ imageRendering: 'pixelated', objectFit: 'contain', filter: 'grayscale(100%)' }}
+        />
+      </div>
+      <span style={{
+        fontSize: '10px', color: '#fff',
+        textShadow: '1px 1px 0px #000, -1px 1px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000',
+        letterSpacing: '0.05em', whiteSpace: 'nowrap',
+        textAlign: 'center',
+      }}>{label}</span>
     </div>
   );
 }
@@ -297,7 +815,7 @@ function Tooltip({ text, bg, fg }: { text: string; bg: string; fg: string }) {
 }
 
 function OmoriModal({
-  isOpen, text, choices, onClose, bg, fg
+  isOpen, text, choices, onClose,
 }: {
   isOpen: boolean;
   text: string;
@@ -306,75 +824,136 @@ function OmoriModal({
   bg: string;
   fg: string;
 }) {
-  if (!isOpen) return null;
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const indexRef = useRef(0);
 
   const modalBg = 'black';
   const modalFg = 'white';
-
   const DIALOGUE_HEIGHT = 160;
-  const BORDER = `3px solid ${modalFg}`;
-  // Double border effect: outer border + inset box-shadow gap
   const DOUBLE_BORDER = {
-    border: BORDER,
+    border: `3px solid ${modalFg}`,
     boxShadow: `inset 0 0 0 3px ${modalBg}, inset 0 0 0 6px ${modalFg}`,
   };
 
+  // Reset and start typing when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    setDisplayed('');
+    setDone(false);
+    indexRef.current = 0;
+
+    intervalRef.current = setInterval(() => {
+      indexRef.current += 1;
+      setDisplayed(text.slice(0, indexRef.current));
+      if (indexRef.current >= text.length) {
+        setDone(true);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      }
+    }, 35); 
+
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [isOpen, text]);
+
+  // Main interaction logic
+  const handleAction = () => {
+    if (!done) {
+      // 1. If still typing, skip to the end
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setDisplayed(text);
+      setDone(true);
+    } else {
+      // 2. If typing is done AND there are no choices, close the modal
+      if (choices.length === 0) {
+        onClose();
+      }
+      // 3. If typing is done AND there ARE choices, clicking backdrop/dialogue does nothing
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+      {/* BACKDROP - Handles clicks outside the boxes */}
       <div
         style={{
           position: 'absolute', inset: 0,
-          touchAction: 'manipulation', // ← add
-          WebkitTapHighlightColor: 'transparent', // ← add
+          backgroundColor: 'transparent',
+          touchAction: 'manipulation',
+          WebkitTapHighlightColor: 'transparent',
         }}
-        onClick={onClose}
-        onTouchEnd={(e) => { e.preventDefault(); onClose(); }}
+        onClick={handleAction}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          handleAction();
+        }}
       />
 
-      {/* CHOICES BOX — single container, all choices inside, flush right */}
-      <div style={{
-        position: 'fixed',
-        bottom: `${DIALOGUE_HEIGHT}px`,
-        right: 0,
-        zIndex: 101,
-        backgroundColor: modalBg,
-        ...DOUBLE_BORDER,
-        borderRight: 'none',
-        color: modalFg,
-        minWidth: '260px',
-        padding: '4px 0',
-        touchAction: 'manipulation', // ← add
-      }}>
-        {choices.map((choice, index) => (
-          <ChoiceItem
-            key={index}
-            label={choice.label}
-            modalBg={modalBg}
-            modalFg={modalFg}
-            onClick={(e) => { e.stopPropagation(); choice.action(); }}
-          />
-        ))}
-      </div>
+      {/* CHOICES BOX — Only shown when typing is done */}
+      {choices.length > 0 && done && (
+        <div style={{
+          position: 'fixed',
+          bottom: `${DIALOGUE_HEIGHT}px`,
+          right: 0,
+          zIndex: 101,
+          backgroundColor: modalBg,
+          ...DOUBLE_BORDER,
+          borderRight: 'none',
+          color: modalFg,
+          minWidth: '260px',
+          padding: '4px 0',
+          touchAction: 'manipulation',
+        }}>
+          {choices.map((choice, index) => (
+            <ChoiceItem
+              key={index}
+              label={choice.label}
+              modalBg={modalBg}
+              modalFg={modalFg}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                choice.action(); 
+              }}
+            />
+          ))}
+        </div>
+      )}
 
-      {/* DIALOGUE BOX — full width, fixed height, bottom */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        width: '100%',
-        height: `${DIALOGUE_HEIGHT}px`,
-        zIndex: 101,
-        backgroundColor: modalBg,
-        ...DOUBLE_BORDER,
-        borderLeft: 'none',
-        borderRight: 'none',
-        borderBottom: 'none',
-        color: modalFg,
-        padding: '20px 28px',
-        boxSizing: 'border-box',
-        display: 'flex',
-        alignItems: 'flex-start',
-      }}>
+      {/* DIALOGUE BOX */}
+      <div
+        style={{
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: `${DIALOGUE_HEIGHT}px`,
+          zIndex: 101,
+          backgroundColor: modalBg,
+          ...DOUBLE_BORDER,
+          borderLeft: 'none',
+          borderRight: 'none',
+          borderBottom: 'none',
+          color: modalFg,
+          padding: '20px 28px',
+          boxSizing: 'border-box' as const,
+          display: 'flex',
+          alignItems: 'flex-start',
+          position: 'fixed' as const,
+          cursor: 'pointer',
+          touchAction: 'manipulation',
+          WebkitTapHighlightColor: 'transparent',
+        }}
+        onClick={(e) => {
+          e.stopPropagation(); // Prevents double-triggering with backdrop
+          handleAction();
+        }}
+        onTouchEnd={(e) => { 
+          e.preventDefault(); 
+          e.stopPropagation(); 
+          handleAction(); 
+        }}
+      >
         <p style={{
           fontFamily: 'var(--font-omori), sans-serif',
           fontSize: '18px',
@@ -382,10 +961,53 @@ function OmoriModal({
           letterSpacing: '0.04em',
           margin: 0,
           whiteSpace: 'pre-line',
+          flex: 1,
         }}>
-          {text}
+          {displayed}
+          {!done && (
+            <span style={{
+              display: 'inline-block',
+              width: '2px',
+              height: '1em',
+              backgroundColor: modalFg,
+              marginLeft: '2px',
+              verticalAlign: 'text-bottom',
+              animation: 'blink 0.7s step-end infinite',
+            }}/>
+          )}
         </p>
+
+        {/* Hand indicator — only show if NO choices and text is done */}
+        {done && choices.length === 0 && (
+          <div style={{
+            position: 'absolute',
+            bottom: '12px',
+            right: '16px',
+            width: '36px',
+            height: '28px',
+            pointerEvents: 'none',
+            animation: 'float 2s ease-in-out infinite'
+          }}>
+            <Image
+              src="/assets/select_hover.png"
+              alt="next"
+              fill
+              style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+            />
+          </div>
+        )}
       </div>
+
+      <style jsx global>{`
+        @keyframes blink {
+          from, to { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+      `}</style>
     </div>
   );
 }

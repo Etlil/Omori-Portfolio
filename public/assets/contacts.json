@@ -1,0 +1,98 @@
+{
+  "job": [
+    {
+      "id": "google",
+      "label": "Google",
+      "icon": "/assets/google.png",
+      "url": "mailto:jezreelpimentel@gmail.com",
+      "dialog": "My gmail is jezreelpimentel@gmail.com just copy it to clipboard?",
+      "choices": [
+        { "label": "COPY TO CLIPBOARD", "action": "copy", "value": "jezreelpimentel@gmail.com" },
+        { "label": "BACK", "action": "close" }
+      ]
+    },
+    {
+      "id": "linkedin",
+      "label": "LinkedIn",
+      "icon": "/assets/linkedin.png",
+      "url": "https://www.linkedin.com/in/jezreel-pimentel-9394a9317",
+      "dialog": "View my unfinished LinkedIn profile?",
+      "choices": [
+        { "label": "VISIT", "action": "open" },
+        { "label": "BACK", "action": "close" }
+      ]
+    },
+    {
+      "id": "upwork",
+      "label": "Upwork",
+      "icon": "/assets/upwork.png",
+      "url": "https://www.upwork.com/freelancers/~011eecb6ba1442a5ed?mp_source=share",
+      "dialog": "View my unfinished LinkedIn profile?",
+      "choices": [
+        { "label": "VISIT", "action": "open" },
+        { "label": "BACK", "action": "close" }
+      ]
+    },
+    {
+      "id": "jobstreet",
+      "label": "JobStreet",
+      "icon": "/assets/jobstreet.png",
+      "url": "https://ph.jobstreet.com/profiles/jezreel-pimentel-RMb3C5Y0PD",
+      "dialog": "View my unfinished JobStreet profile?",
+      "choices": [
+        { "label": "VISIT", "action": "open" },
+        { "label": "BACK", "action": "close" }
+      ]
+    }
+  ],
+  "social": [
+    {
+      "id": "facebook",
+      "label": "Facebook",
+      "icon": "/assets/facebook.png",
+      "url": "https://www.facebook.com/etlilhshshhs",
+      "dialog": "This is my main Facebook account, do you want to visit it?",
+      "choices": [
+        { "label": "VISIT", "action": "open" },
+        { "label": "BACK", "action": "close" }
+      ]
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "icon": "/assets/ig.png",
+      "url": "https://www.instagram.com/etlil_/",
+      "dialog": "This is my Instagram account, do you want to visit it?",
+      "choices": [
+        { "label": "VISIT", "action": "open" },
+        { "label": "BACK", "action": "close" }
+      ]
+    },
+    {
+        "id": "tiktok",
+        "label": "TikTok",
+        "icon": "/assets/tiktok.png",
+        "url": "https://www.tiktok.com/@.etlil",
+        "dialog": [
+            "I was an MLBB content creator a long time ago...",
+            "...that's why I reached around 40k followers, but I don't really use this account anymore.",
+            "If someone wants to offer for this account, just let me know :) Do you still want to visit the profile?"
+        ],
+        "choices": [
+            { "label": "VISIT", "action": "open" },
+            { "label": "BACK", "action": "close" }
+        ]
+    },
+    {
+        "id": "discord",
+        "label": "Discord",
+        "icon": "/assets/discord.png",
+        "url": "",
+        "dialog": "My bad I can't share the link, can you just copy my username instead?",
+        "choices": [
+            { "label": "COPY USERNAME", "action": "copy", "value": "etlil" },
+            { "label": "BACK", "action": "close" }
+        ]
+        }
+  ]
+}

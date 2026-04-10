@@ -35,3 +35,16 @@ a {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+
+@keyframes omori-shock {
+    0% { opacity: 0; transform: scale(0.5); }
+    10% { opacity: 1; transform: scale(1.2); }
+    20% { opacity: 0; }
+    30% { opacity: 1; transform: scale(1.1); }
+    40% { opacity: 0; }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 1; }
+  }
+  .shock-effect {
+    animation: omori-shock 0.2s steps(1) forwards;
+  }

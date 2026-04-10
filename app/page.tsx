@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
@@ -10,6 +11,8 @@ export default function Home() {
   const [bulbHovered, setBulbHovered] = useState(false);
   const smoothRef = useRef({ x: 0, y: 0 });
   const targetWobbleRef = useRef({ x: 0, y: 0 });
+
+  const router = useRouter();
   
 
   const [modalData, setModalData] = useState<{
@@ -86,7 +89,7 @@ export default function Home() {
 
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => {
-      if (window.innerWidth < 768) return;
+      if (window.innerWidth < 768 || modalData.isOpen || desktopOpen) return; 
 
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -260,7 +263,7 @@ export default function Home() {
           </div>
 
           <div style={{ position: 'absolute', bottom: '20%', right: '10%', pointerEvents: 'auto', zIndex: 20, transform: `translate(${tilt.x * 5}px, ${tilt.y * 5}px)` }}>
-            <SceneItem label="Projects" isDark={isDark} href="#about">
+            <SceneItem label="Projects" isDark={isDark} onClick={() => router.push('/projects')}>
               <div style={{ position: 'relative', width: isMobile ? '45px' : '55px', height: '60px' }}>
                 <Image src="/assets/sketch_book.png" alt="Sketch" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
               </div>
@@ -290,7 +293,7 @@ export default function Home() {
             position: 'absolute',
             bottom: isMobile ? '5%' : '-15%',
             left: '50%',
-            zIndex: 25,
+            zIndex: 50,
             pointerEvents: 'none',
             transition: 'transform 0.12s ease-out, bottom 0.3s ease',
           }}
@@ -306,8 +309,9 @@ export default function Home() {
             }}
             onMouseEnter={() => setCharHovered(true)}
             onMouseLeave={() => setCharHovered(false)}
+            onClick={() => router.push('/aboutme')} 
           >
-            {charHovered && <Tooltip text="About Me" bg={bg} fg={fg} />}
+            {charHovered && <Tooltip text="About Me?!" bg={bg} fg={fg} />}
 
             {/* Base character */}
             <Image
@@ -328,8 +332,9 @@ export default function Home() {
               left: isMobile ? '42.5%' : '41%',
               width: isMobile ? '14%' : '17%',
               height: isMobile ? '3.8%' : '4.5%',
-              transform: `translate(${pupilOffset.x}px, ${pupilOffset.y + (charHovered ? -4 : 0)}px)`,
-              transition: 'transform 0.05s ease-out',
+              // Logic: If charHovered is true, we use 0 for the offsets, otherwise we use the parallax values
+              transform: `translate(${charHovered ? 0 : pupilOffset.x}px, ${(charHovered ? 0 : pupilOffset.y) + (charHovered ? -4 : 0)}px)`,
+              transition: 'transform 0.15s ease-out', // Slightly increased duration for a smoother "snap" back to center
               pointerEvents: 'none',
             }}>
               <Image
@@ -338,6 +343,37 @@ export default function Home() {
                 fill
                 style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
               />
+            </div>
+
+            {/* --- Shocked Mark (PNG) --- */}
+            <div 
+              className={charHovered ? "shock-effect" : ""}
+              style={{
+                position: 'absolute',
+                // Moved slightly higher and further right
+                top: isMobile ? '0%' : '0%', 
+                left: isMobile ? '68%' : '68%', 
+                // Reduced size: from 28% to 18%
+                width: isMobile ? '18%' : '18%',
+                height: 'auto',
+                // If not hovered, hide instantly (no fade)
+                opacity: charHovered ? 1 : 0,
+                // Parallax remains snappy and high-intensity
+                transform: `translate(${tilt.x * 35}px, ${tilt.y * 30}px)`,
+                transition: 'transform 0.05s ease-out', // No opacity transition
+                pointerEvents: 'none',
+                filter: isDark ? 'invert(1)' : 'none',
+                zIndex: 60,
+              }}
+            >
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '1/1' }}>
+                <Image
+                  src="/assets/shocked.png"
+                  alt="shocked"
+                  fill
+                  style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+                />
+              </div>
             </div>
 
           </div>

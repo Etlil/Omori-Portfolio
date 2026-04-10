@@ -1,0 +1,63 @@
+{
+  "projects": [
+    {
+      "id": "project1",
+      "image": "",
+      "thumbnail": "",
+      "caption": "A personal project built with passion.",
+      "dialog": [
+        "This was my first major project...",
+        "I learned so much building this.",
+        "It taught me to never give up."
+      ]
+    },
+    {
+      "id": "project2",
+      "image": "",
+      "thumbnail": "",
+      "caption": "Exploring new ideas and designs.",
+      "dialog": [
+        "This one was a challenge.",
+        "But challenges make you stronger."
+      ]
+    },
+    {
+      "id": "project3",
+      "image": "",
+      "thumbnail": "",
+      "caption": "Collaboration and creativity.",
+      "dialog": [
+        "Working with others taught me a lot."
+      ]
+    },
+    {
+      "id": "project4",
+      "image": "",
+      "thumbnail": "",
+      "caption": "Late nights and coffee.",
+      "dialog": [
+        "Some nights I coded until sunrise.",
+        "Worth every second."
+      ]
+    },
+    {
+      "id": "project5",
+      "image": "",
+      "thumbnail": "",
+      "caption": "Always learning, always growing.",
+      "dialog": [
+        "Growth never stops.",
+        "Every project is a new lesson."
+      ]
+    },
+    {
+      "id": "project6",
+      "image": "",
+      "thumbnail": "",
+      "caption": "The journey continues.",
+      "dialog": [
+        "And there is still so much more to build."
+      ]
+    }
+  ]
+}

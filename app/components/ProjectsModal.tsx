@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 type Project = {
   id: string;
@@ -12,7 +11,6 @@ type Project = {
   dialog: string[];
 };
 
-// Fake handwriting lines generator
 function ScrawlText({ lines = 4, width = 120 }: { lines?: number; width?: number }) {
   const widths = [0.9, 0.7, 0.85, 0.6, 0.75, 0.95, 0.65];
   return (
@@ -30,8 +28,48 @@ function ScrawlText({ lines = 4, width = 120 }: { lines?: number; width?: number
   );
 }
 
-export default function Projects() {
-  const router = useRouter();
+function PolaroidCard({ project, index, onClick }: {
+  project: Project;
+  index: number;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const rotations = [-3, 2, -1.5, 3, -2, 1.5];
+  const rotation = rotations[index % rotations.length];
+
+  return (
+    <div
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onTouchStart={() => setHovered(true)}
+      onTouchEnd={(e) => { e.preventDefault(); setHovered(false); onClick(); }}
+      style={{
+        cursor: 'pointer',
+        transform: `rotate(${rotation}deg) translateY(${hovered ? '-6px' : '0'})`,
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        WebkitTapHighlightColor: 'transparent',
+        userSelect: 'none',
+      }}
+    >
+      <div style={{
+        background: 'white',
+        padding: '7px 7px 24px',
+        boxShadow: hovered ? '6px 6px 20px rgba(0,0,0,0.45)' : '3px 3px 10px rgba(0,0,0,0.25)',
+        transition: 'box-shadow 0.15s ease',
+      }}>
+        <div style={{ position: 'relative', width: '160px', height: '160px', background: '#ccc', overflow: 'hidden' }}>
+          {project.thumbnail && (
+            <Image src={project.thumbnail} alt={project.id} fill
+              style={{ objectFit: 'cover', imageRendering: 'pixelated' }}/>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ProjectsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [displayed, setDisplayed] = useState('');
@@ -92,14 +130,14 @@ export default function Projects() {
     setActiveProject(project);
   };
 
+  if (!isOpen) return null;
+
   const DIALOGUE_HEIGHT = 140;
   const DOUBLE_BORDER = {
     border: '3px solid #fff',
     boxShadow: 'inset 0 0 0 3px #000, inset 0 0 0 6px #fff',
   };
 
-  // Layout pattern: alternates photo-left/text-right and text-left/photo-right
-  // Each row has [left, right] where each is 'photo:index' or 'text:index'
   const layoutPattern = [
     ['photo:0', 'text:0'],
     ['text:1', 'photo:1'],
@@ -111,17 +149,14 @@ export default function Projects() {
 
   return (
     <div style={{
-      minHeight: '100vh',
-      width: '100vw',
-      background: '#5b3fa0',
-      position: 'relative',
-      overflow: activeProject ? 'hidden' : 'auto',
+      position: 'fixed', inset: 0, zIndex: 9990,
       fontFamily: 'var(--font-omori), sans-serif',
+      overflow: 'hidden',
     }}>
-
-      {/* Starfield */}
+      {/* Background */}
       <div style={{
-        position: 'fixed', inset: 0,
+        position: 'absolute', inset: 0,
+        background: '#5b3fa0',
         backgroundImage: `
           radial-gradient(1px 1px at 10% 15%, white, transparent),
           radial-gradient(1px 1px at 25% 40%, white, transparent),
@@ -130,107 +165,99 @@ export default function Projects() {
           radial-gradient(1px 1px at 70% 25%, white, transparent),
           radial-gradient(1px 1px at 85% 50%, white, transparent),
           radial-gradient(1px 1px at 15% 70%, white, transparent),
-          radial-gradient(1px 1px at 30% 85%, white, transparent),
           radial-gradient(1px 1px at 60% 80%, white, transparent),
           radial-gradient(1px 1px at 90% 90%, white, transparent),
-          radial-gradient(1px 1px at 5% 50%, white, transparent),
-          radial-gradient(1px 1px at 75% 5%, white, transparent),
           radial-gradient(2px 2px at 45% 45%, rgba(255,255,255,0.5), transparent),
-          radial-gradient(2px 2px at 80% 70%, rgba(255,255,255,0.5), transparent),
-          radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.5), transparent)
+          radial-gradient(2px 2px at 80% 70%, rgba(255,255,255,0.5), transparent)
         `,
-        pointerEvents: 'none', zIndex: 0,
       }}/>
 
       {/* Teal ground */}
       <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
+        position: 'absolute', bottom: 0, left: 0, right: 0,
         height: '80px',
         background: 'linear-gradient(to bottom, #2dd4bf, #0d9488)',
         zIndex: 1, pointerEvents: 'none',
       }}/>
 
-      {/* Back button */}
-      <button
-        onClick={() => router.push('/')}
-        style={{
-          position: 'fixed', top: '16px', left: '16px', zIndex: 50,
-          background: '#000', color: '#fff',
-          border: '3px solid #fff',
-          boxShadow: 'inset 0 0 0 2px #000, inset 0 0 0 4px #fff',
-          padding: '6px 14px',
-          fontFamily: 'inherit', fontSize: '12px',
-          letterSpacing: '0.1em', textTransform: 'uppercase',
-          cursor: 'pointer',
-        }}
-      >← Back</button>
+      {/* Scrollable content */}
+      <div style={{ position: 'relative', zIndex: 2, height: '100%', overflowY: 'auto' }}>
 
-      {/* Page title */}
-      <div style={{
-        position: 'relative', zIndex: 10,
-        textAlign: 'center',
-        paddingTop: '60px', paddingBottom: '16px',
-        color: '#fff', fontSize: '13px',
-        letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.8,
-      }}>Projects</div>
+        {/* Back button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'sticky', top: '16px',
+            marginLeft: '16px',
+            zIndex: 50,
+            background: '#000', color: '#fff',
+            border: '3px solid #fff',
+            boxShadow: 'inset 0 0 0 2px #000, inset 0 0 0 4px #fff',
+            padding: '6px 14px',
+            fontFamily: 'inherit', fontSize: '12px',
+            letterSpacing: '0.1em', textTransform: 'uppercase',
+            cursor: 'pointer',
+            display: 'block',
+          }}
+        >← Back</button>
 
-      {/* Scrapbook */}
-      <div style={{
-        position: 'relative', zIndex: 10,
-        maxWidth: '680px',
-        margin: '0 auto',
-        padding: '0 16px 140px',
-      }}>
+        {/* Title */}
         <div style={{
-          background: 'linear-gradient(135deg, #f0ebe0, #e8e2d5)',
-          border: '2px solid #ccc',
-          boxShadow: '0 12px 48px rgba(0,0,0,0.6), inset 0 0 0 1px #ddd',
-          padding: '28px 20px',
-          position: 'relative',
-        }}>
+          textAlign: 'center',
+          paddingTop: '16px', paddingBottom: '16px',
+          color: '#fff', fontSize: '13px',
+          letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.8,
+        }}>Projects</div>
 
-          {/* Spine */}
+        {/* Scrapbook */}
+        <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 16px 140px' }}>
           <div style={{
-            position: 'absolute', top: 0, bottom: 0,
-            left: '50%', transform: 'translateX(-50%)',
-            width: '4px',
-            background: 'linear-gradient(to bottom, #c8bfb0, #a89880, #c8bfb0)',
-            zIndex: 1,
-          }}/>
+            background: 'linear-gradient(135deg, #f0ebe0, #e8e2d5)',
+            border: '2px solid #ccc',
+            boxShadow: '0 12px 48px rgba(0,0,0,0.6), inset 0 0 0 1px #ddd',
+            padding: '28px 20px',
+            position: 'relative',
+          }}>
+            {/* Spine */}
+            <div style={{
+              position: 'absolute', top: 0, bottom: 0,
+              left: '50%', transform: 'translateX(-50%)',
+              width: '4px',
+              background: 'linear-gradient(to bottom, #c8bfb0, #a89880, #c8bfb0)',
+              zIndex: 1,
+            }}/>
 
-          {/* Rows */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative', zIndex: 2 }}>
-            {layoutPattern.map((row, rowIdx) => {
+            {/* Rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative', zIndex: 2 }}>
+              {layoutPattern.map((row, rowIdx) => {
                 const [leftSlot, rightSlot] = row;
-
-                const renderSlot = (slot: string) => {  // ← move it here
-                    const [type, idxStr] = slot.split(':');
-                    const idx = parseInt(idxStr);
-                    const project = projects[idx];
-
-                    if (type === 'photo' && project) {
+                const renderSlot = (slot: string) => {
+                  const [type, idxStr] = slot.split(':');
+                  const idx = parseInt(idxStr);
+                  const project = projects[idx];
+                  if (type === 'photo' && project) {
                     return <PolaroidCard key={`photo-${rowIdx}-${idx}`} project={project} index={idx} onClick={() => openProject(project)} />;
-                    }
-                    if (type === 'text' && project) {
+                  }
+                  if (type === 'text' && project) {
                     return (
-                        <div key={`text-${rowIdx}-${idx}`} style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px 12px', justifyContent: 'center', alignSelf: 'center' }}>
+                      <div key={`text-${rowIdx}-${idx}`} style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px 12px', justifyContent: 'center', alignSelf: 'center' }}>
                         <ScrawlText lines={3} width={140} />
                         <ScrawlText lines={4} width={160} />
                         <ScrawlText lines={2} width={120} />
                         <div style={{ marginTop: '4px' }}><ScrawlText lines={1} width={80} /></div>
-                        </div>
+                      </div>
                     );
-                    }
-                    return <div key={`empty-${rowIdx}-${slot}`}/>;  // ← now unique
+                  }
+                  return <div key={`empty-${rowIdx}-${slot}`}/>;
                 };
-
                 return (
-                    <div key={rowIdx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'center' }}>
+                  <div key={rowIdx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'center' }}>
                     {renderSlot(leftSlot)}
                     {renderSlot(rightSlot)}
-                    </div>
+                  </div>
                 );
-            })}
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -246,26 +273,21 @@ export default function Projects() {
           onClick={handleDialogAction}
           onTouchEnd={(e) => { e.preventDefault(); handleDialogAction(); }}
         >
-            <div style={{
-                position: 'relative',
-                width: 'min(460px, 80vw)',
-                height: 'min(460px, 50vh)',
-                background: '#f5f0e8',
-                border: '10px solid #f5f0e8',
-                boxShadow: '0 0 60px rgba(0,0,0,0.7)',
-                marginBottom: `${DIALOGUE_HEIGHT + 20}px`,
-                }}>
-                {activeProject.image && (
-                    <Image
-                    src={activeProject.image}
-                    alt={activeProject.id}
-                    fill
-                    style={{ objectFit: 'cover', imageRendering: 'pixelated' }}
-                    />
-                )}
-            </div>
+          <div style={{
+            position: 'relative',
+            width: 'min(460px, 80vw)',
+            height: 'min(460px, 50vh)',
+            background: '#f5f0e8',
+            border: '10px solid #f5f0e8',
+            boxShadow: '0 0 60px rgba(0,0,0,0.7)',
+            marginBottom: `${DIALOGUE_HEIGHT + 20}px`,
+          }}>
+            {activeProject.image && (
+              <Image src={activeProject.image} alt={activeProject.id} fill
+                style={{ objectFit: 'cover', imageRendering: 'pixelated' }}/>
+            )}
+          </div>
 
-          {/* Dialogue */}
           <div
             style={{
               position: 'fixed',
@@ -322,60 +344,6 @@ export default function Projects() {
         @keyframes blink { from, to { opacity: 1; } 50% { opacity: 0; } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
       `}</style>
-    </div>
-  );
-}
-
-function PolaroidCard({ project, index, onClick }: {
-  project: Project;
-  index: number;
-  onClick: () => void;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const rotations = [-3, 2, -1.5, 3, -2, 1.5];
-  const rotation = rotations[index % rotations.length];
-
-  return (
-    <div
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onTouchStart={() => setHovered(true)}
-      onTouchEnd={(e) => { e.preventDefault(); setHovered(false); onClick(); }}
-      style={{
-        cursor: 'pointer',
-        transform: `rotate(${rotation}deg) translateY(${hovered ? '-6px' : '0'})`,
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-        WebkitTapHighlightColor: 'transparent',
-        userSelect: 'none',
-        justifySelf: index % 2 === 0 ? 'center' : 'center',
-      }}
-    >
-      <div style={{
-        background: 'white',
-        padding: '7px 7px 24px',
-        boxShadow: hovered
-          ? '6px 6px 20px rgba(0,0,0,0.45)'
-          : '3px 3px 10px rgba(0,0,0,0.25)',
-        transition: 'box-shadow 0.15s ease',
-      }}>
-        <div style={{
-            position: 'relative',
-            width: '160px',
-            height: '160px',
-            background: '#ccc',
-            overflow: 'hidden',
-            }}>
-            {project.thumbnail && (
-                <Image
-                src={project.thumbnail}
-                alt={project.id}
-                fill
-                style={{ objectFit: 'cover', imageRendering: 'pixelated' }}
-                />
-            )}
-        </div>
-      </div>
     </div>
   );
 }

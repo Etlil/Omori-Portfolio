@@ -6,9 +6,13 @@
       "thumbnail": "/assets/projects/smartcamp.jpg",
       "caption": "Smart Campus Navigation with Queue and Appointment Integration",
       "dialog": [
-        "This was my first major project...",
-        "I learned so much building this.",
-        "It taught me to never give up."
+        "This project is our capstone project way back in college",
+        "I learned so much building this",
+        "It's a group project and I have my groupmates to thank for that",
+        "Without them this project wouldn't be possible",
+        "We used Laravel with Volt and Livewire for the frontend and backend",
+        "and MySQL for the database",
+        "You can view the project and it's documentation if you want."
       ],
       "choices": [
         {
@@ -16,8 +20,8 @@
           "url": "https://user.map.nlac.online/"
         },
         {
-          "label": "VIEW FILES",
-          "url": "https://youtube.com"
+          "label": "VIEW THE DOCUMENTATION",
+          "url": "https://drive.google.com/file/d/1PmAi8eGNeewemp0trY_9kP9trqNaCF8G/view?usp=sharing"
         },
         {
           "label": "CANCEL",
@@ -31,8 +35,23 @@
       "thumbnail": "/assets/projects/acls.jpg",
       "caption": "Access Control Log System",
       "dialog": [
-        "This one was a challenge.",
-        "But challenges make you stronger."
+        "This one is our project for our System Analysis and Design subject",
+        "This project is one of the most challenging projects we've done",
+        "Because it's our first time to do a documented research and development project",
+        "But despite that.....the project turned out to be a success",
+        "and I thank my groupmates for that",
+        "btw we used Laravel for backend and Angular for the frontend and MySQL for the database",
+        "Unfortunately we don't have a live version of the project but you can view the documentation if you want."
+      ],
+      "choices": [
+        {
+          "label": "VIEW THE DOCUMENTATION",
+          "url": "https://drive.google.com/file/d/1Xrh0uuiRRUW2Z24OIhE_9UMGkFDveorI/view?usp=drive_link"
+        },
+        {
+          "label": "CANCEL",
+          "url": null
+        }
       ]
     },
     {
@@ -41,27 +60,86 @@
       "thumbnail": "/assets/projects/nlah.jpg",
       "caption": "Northern Luzon Adventist Hospital's Management Information System",
       "dialog": [
-        "Working with others taught me a lot."
+        "Uhh....about this project.....",
+        "I don't even know where to start with this one",
+        "This project is a real life project that I did for my internship in Northern Luzon Adventist Hospital",
+        "This system is like All in One type shi",
+        "Because anything you can think of that a hospital needs, this system has it",
+        "maybe??? Idk",
+        "Because it's a system with a lot of modules like Employee's Portal, HRIS, Maintenance, Inventory, Payroll, Leave Management, etc., atbp, and many more",
+        "And we only use laravel for this project",
+        "Unfortunately you can't access the Employee's Portal but you can view the front of the website if you want."
+      ],
+      "choices": [
+        {
+          "label": "VISIT WEBSITE",
+          "url": "https://nlahospital.leuvhano.fun/nlah/home"
+        },
+        {
+          "label": "CANCEL",
+          "url": null
+        }
       ]
     },
     {
       "id": "project4",
       "image": "/assets/projects/mpos.jpg",
       "thumbnail": "/assets/projects/mpos.jpg",
-      "caption": "Mobile Point of Sales System",
+      "caption": "Mobile Point of Sales System(Android)",
       "dialog": [
-        "Some nights I coded until sunrise.",
-        "Worth every second."
+        "About this one....",
+        "I just did this out of boredom hehe",
+        "I just taken the idea of a point of sales system from my intern project and just made it mobile",
+        "But it lowkeys works tho, and it works offline too",
+        "I use Kotlin for the frontend and Java for the backend and SQLite for the database",
+        "You can get the copy of the sample of the app without any database if you want."
+      ],
+      "choices": [
+        {
+          "label": "DOWNLOAD THE APP",
+          "url": "https://drive.google.com/file/d/1qCOKJVIahaWr-S4-7NZNJLjD9uc2Q9A9/view?usp=sharing"
+        },
+        {
+          "label": "CANCEL",
+          "url": null
+        }
       ]
     },
     {
       "id": "project5",
+      "image": "/assets/projects/chrono.jpg",
+      "thumbnail": "/assets/projects/chrono.jpg",
+      "caption": "Chrono Paradox",
+      "dialog": [
+        "This is our game development project for our Software Engineering subject",
+        "I really did enjoy this project because I really like game development",
+        "I even have some sleepless nights just to code and draw the assets for this game",
+        "Yup, I drew all the assets for this project.",
+        "The game is about a boy who found a time watch and he can use it to travel in time blah blah blah",
+        "We use Phaser as a game engine and we use Angular for front end",
+        "I can't show you the live version of the game but you can view the screenshots if you want."
+      ],
+      "choices": [
+        {
+          "label": "VIEW THE SCREENSHOTS",
+          "url": "https://drive.google.com/drive/folders/1A39Us26wM1ock8A9AZq-fEP57Xb11l6f?usp=sharing"
+        },
+        {
+          "label": "CANCEL",
+          "url": null
+        }
+      ]
+    },
+    {
+      "id": "project6",
       "image": "/assets/projects/portfolio.jpg",
       "thumbnail": "/assets/projects/portfolio.jpg",
       "caption": "Omori Inspired Portfolio Website",
       "dialog": [
-        "Growth never stops.",
-        "Every project is a new lesson."
+        "Yes this is the one you're currently viewing",
+        "I made this portfolio because I think there's no one did their portfolio based on their favorite game",
+        "maybe??? Idk",
+        "I used Next.js for this and Vercel for hosting"
       ]
     }
   ]

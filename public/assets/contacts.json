@@ -4,10 +4,11 @@
       "id": "google",
       "label": "Google",
       "icon": "/assets/google.png",
-      "url": "mailto:jezreelpimentel@gmail.com",
-      "dialog": "My gmail is jezreelpimentel@gmail.com just copy it to clipboard?",
+      "url": "https://mail.google.com/mail/?view=cm&fs=1&to=jezreelpimentel@gmail.com&su=Portfolio%20Inquiry",
+      "dialog": "My gmail is jezreelpimentel@gmail.com just copy it to clipboard? or just send me an email?",
       "choices": [
         { "label": "COPY TO CLIPBOARD", "action": "copy", "value": "jezreelpimentel@gmail.com" },
+        { "label": "SEND EMAIL", "action": "open" },
         { "label": "BACK", "action": "close" }
       ]
     },

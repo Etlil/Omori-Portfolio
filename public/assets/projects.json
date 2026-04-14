@@ -2,20 +2,34 @@
   "projects": [
     {
       "id": "project1",
-      "image": "",
-      "thumbnail": "",
-      "caption": "A personal project built with passion.",
+      "image": "/assets/projects/smartcamp.jpg",
+      "thumbnail": "/assets/projects/smartcamp.jpg",
+      "caption": "Smart Campus Navigation with Queue and Appointment Integration",
       "dialog": [
         "This was my first major project...",
         "I learned so much building this.",
         "It taught me to never give up."
+      ],
+      "choices": [
+        {
+          "label": "VISIT WEBSITE",
+          "url": "https://user.map.nlac.online/"
+        },
+        {
+          "label": "VIEW FILES",
+          "url": "https://youtube.com"
+        },
+        {
+          "label": "CANCEL",
+          "url": null
+        }
       ]
     },
     {
       "id": "project2",
-      "image": "",
-      "thumbnail": "",
-      "caption": "Exploring new ideas and designs.",
+      "image": "/assets/projects/acls.jpg",
+      "thumbnail": "/assets/projects/acls.jpg",
+      "caption": "Access Control Log System",
       "dialog": [
         "This one was a challenge.",
         "But challenges make you stronger."
@@ -23,18 +37,18 @@
     },
     {
       "id": "project3",
-      "image": "",
-      "thumbnail": "",
-      "caption": "Collaboration and creativity.",
+      "image": "/assets/projects/nlah.jpg",
+      "thumbnail": "/assets/projects/nlah.jpg",
+      "caption": "Northern Luzon Adventist Hospital's Management Information System",
       "dialog": [
         "Working with others taught me a lot."
       ]
     },
     {
       "id": "project4",
-      "image": "",
-      "thumbnail": "",
-      "caption": "Late nights and coffee.",
+      "image": "/assets/projects/mpos.jpg",
+      "thumbnail": "/assets/projects/mpos.jpg",
+      "caption": "Mobile Point of Sales System",
       "dialog": [
         "Some nights I coded until sunrise.",
         "Worth every second."
@@ -42,21 +56,12 @@
     },
     {
       "id": "project5",
-      "image": "",
-      "thumbnail": "",
-      "caption": "Always learning, always growing.",
+      "image": "/assets/projects/portfolio.jpg",
+      "thumbnail": "/assets/projects/portfolio.jpg",
+      "caption": "Omori Inspired Portfolio Website",
       "dialog": [
         "Growth never stops.",
         "Every project is a new lesson."
-      ]
-    },
-    {
-      "id": "project6",
-      "image": "",
-      "thumbnail": "",
-      "caption": "The journey continues.",
-      "dialog": [
-        "And there is still so much more to build."
       ]
     }
   ]

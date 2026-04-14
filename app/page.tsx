@@ -299,7 +299,7 @@ export default function Home() {
             left: '50%',
             zIndex: 50,
             pointerEvents: 'none',
-            transition: 'transform 0.12s ease-out, bottom 0.3s ease',
+            transition: 'none',
           }}
         >
           <div
@@ -338,7 +338,7 @@ export default function Home() {
               height: isMobile ? '3.8%' : '4.5%',
               // Logic: If charHovered is true, we use 0 for the offsets, otherwise we use the parallax values
               transform: `translate(${charHovered ? 0 : pupilOffset.x}px, ${(charHovered ? 0 : pupilOffset.y) + (charHovered ? -4 : 0)}px)`,
-              transition: 'transform 0.15s ease-out', // Slightly increased duration for a smoother "snap" back to center
+              transition: 'none', // Slightly increased duration for a smoother "snap" back to center
               pointerEvents: 'none',
             }}>
               <Image
@@ -364,7 +364,7 @@ export default function Home() {
                 opacity: charHovered ? 1 : 0,
                 // Parallax remains snappy and high-intensity
                 transform: `translate(${tilt.x * 35}px, ${tilt.y * 30}px)`,
-                transition: 'transform 0.05s ease-out', // No opacity transition
+                transition: 'none',
                 pointerEvents: 'none',
                 filter: isDark ? 'invert(1)' : 'none',
                 zIndex: 60,
@@ -709,7 +709,7 @@ function SceneItem({
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         position: 'relative',
         transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
-        transition: 'transform 0.15s ease',
+        transition: 'none',
         WebkitTapHighlightColor: 'transparent',
         touchAction: 'manipulation',
         userSelect: 'none',
@@ -761,7 +761,7 @@ function SceneItem({
 
       {hoverSrc ? (
         <div style={{ position: 'relative' }}>
-          <div style={{ opacity: hovered ? 0 : 1, transition: 'opacity 0.1s' }}>
+          <div style={{ opacity: hovered ? 0 : 1, transition: 'none' }}>
             {children}
           </div>
           {hovered && (

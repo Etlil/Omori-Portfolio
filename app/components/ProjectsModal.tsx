@@ -12,10 +12,11 @@ type Project = {
 };
 
 // Simplified Polaroid: Just the photo frame
-function PolaroidCard({ project, index, onClick }: {
+function PolaroidCard({ project, index, onClick, isMobile }: { // Add isMobile here
   project: Project;
   index: number;
   onClick: () => void;
+  isMobile: boolean; // Add this
 }) {
   const [hovered, setHovered] = useState(false);
   const rotations = [-3, 2, -1.5, 3, -2, 1.5];
@@ -35,12 +36,19 @@ function PolaroidCard({ project, index, onClick }: {
     >
       <div style={{
         background: 'white',
-        padding: '8px 8px 16px',
+        padding: isMobile ? '4px 4px 10px' : '8px 8px 16px', // Smaller padding on mobile
         boxShadow: hovered ? '8px 8px 20px rgba(0,0,0,0.4)' : '4px 4px 10px rgba(0,0,0,0.2)',
       }}>
-        <div style={{ position: 'relative', width: '140px', height: '140px', background: '#ccc', overflow: 'hidden' }}>
+        {/* Responsive Photo Frame */}
+        <div style={{ 
+          position: 'relative', 
+          width: isMobile ? '80px' : '140px', // Shrink photo on mobile
+          height: isMobile ? '80px' : '140px', 
+          background: '#ccc', 
+          overflow: 'hidden' 
+        }}>
           {project.thumbnail && (
-            <Image src={project.thumbnail} alt={project.id} fill sizes="140px"
+            <Image src={project.thumbnail} alt={project.id} fill sizes={isMobile ? "80px" : "140px"}
               style={{ objectFit: 'cover', imageRendering: 'pixelated' }}/>
           )}
         </div>
@@ -58,6 +66,14 @@ export default function ProjectsModal({ isOpen, onClose }: { isOpen: boolean; on
   const [dialogIndex, setDialogIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const indexRef = useRef(0);
+
+  const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
   const openProject = (project: Project) => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -168,7 +184,12 @@ export default function ProjectsModal({ isOpen, onClose }: { isOpen: boolean; on
     <div style={{ position: 'fixed', inset: 0, zIndex: 9990, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-omori), monospace' }}>
       
       {/* Book container */}
-      <div style={{ position: 'relative', width: 'min(760px, 95vw)', height: 'min(520px, 80vh)' }}>
+      <div style={{ 
+        position: 'relative', 
+        width: isMobile ? '80vw' : '760px', 
+        height: isMobile ? '50vw' : '520px', // Maintain aspect ratio on mobile
+        transform: isMobile ? 'scale(1.1)' : 'none', // Slight zoom for readability
+      }}>
         
         {/* Background Logic */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
@@ -176,44 +197,110 @@ export default function ProjectsModal({ isOpen, onClose }: { isOpen: boolean; on
         </div>
 
         {/* Content Layer */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex' }}>
+        <div style={{ position: 'absolute', marginLeft: '0', inset: 0, zIndex: 1, display: 'flex' }}>
           {page === 0 ? (
             /* ── COVER PAGE ── */
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', paddingRight: '11%', paddingBottom: '1%'}}>
-                <h1 style={{ fontSize: 'min(64px, 12vw)', color: '#000', textTransform: 'uppercase', lineHeight: '0.8', transform: 'rotate(2deg)', textAlign: 'center' }}>
-                  <div style={{ marginBottom: '10px' }}>
-                    {"MY".split("").map((c, i) => <span key={i} style={{ display: 'inline-block', transform: `translate(${(i * 3) % 5}px, ${(i * 7) % 4}px) rotate(${(i * 13) % 10 - 5}deg)` }}>{c}</span>)}
-                  </div>
-                  <div>
-                    {"PROJECTS".split("").map((c, i) => <span key={i} style={{ display: 'inline-block', transform: `translate(${(i * 4) % 7 - 3}px, ${(i * 9) % 6 - 3}px) rotate(${(i * 17) % 12 - 6}deg)` }}>{c}</span>)}
-                  </div>
+            <div style={{ 
+                flex: 1, 
+                transform: isMobile ? 'translateX(10px)' : 'none',
+                display: 'flex', 
+                flexDirection: 'column', 
+                // On mobile, we center it more; on desktop, we keep it to the right
+                alignItems: isMobile ? 'center' : 'flex-end', 
+                justifyContent: 'center', 
+                // Reduce padding on mobile so it doesn't get squished
+                paddingRight: isMobile ? '0' : '11%', 
+                // Shift slightly to the right on mobile to avoid the "book spine"
+                marginLeft: isMobile ? '45%' : '0',
+                paddingBottom: '1%'
+            }}>
+                <h1 style={{ 
+                    // Smaller font for mobile (40px) vs desktop (64px)
+                    fontSize: isMobile ? 'min(30px, 10vw)' : 'min(64px, 12vw)', 
+                    color: '#000', 
+                    textTransform: 'uppercase', 
+                    lineHeight: '0.8', 
+                    transform: 'rotate(2deg)', 
+                    textAlign: 'center',
+                    userSelect: 'none',
+                    pointerEvents: 'none',
+                }}>
+                    <div style={{ marginBottom: isMobile ? '5px' : '10px' }}>
+                        {"MY".split("").map((c, i) => (
+                            <span key={i} style={{ 
+                                display: 'inline-block', 
+                                transform: `translate(${(i * 3) % 5}px, ${(i * 7) % 4}px) rotate(${(i * 13) % 10 - 5}deg)` 
+                            }}>
+                                {c}
+                            </span>
+                        ))}
+                    </div>
+                    <div>
+                        {"PROJECTS".split("").map((c, i) => (
+                            <span key={i} style={{ 
+                                display: 'inline-block', 
+                                // Scale the random movement down slightly on mobile so words stay readable
+                                transform: `translate(${((i * 4) % 7 - 3) * (isMobile ? 0.5 : 1)}px, ${((i * 9) % 6 - 3) * (isMobile ? 0.5 : 1)}px) rotate(${(i * 17) % 12 - 6}deg)` 
+                            }}>
+                                {c}
+                            </span>
+                        ))}
+                    </div>
                 </h1>
             </div>
           ) : (
             /* ── SPREAD PAGES ── */
             <>
               {/* LEFT PAGE */}
-              <div style={{ flex: 1, padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', position: 'relative' }}>
+              <div style={{ 
+                  flex: 1, 
+                  padding: isMobile ? '10px' : '40px', // Reduced padding
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: isMobile ? '10px' : '20px', // Reduced gap
+                  position: 'relative' 
+              }}>
                 {leftProject && (
                   <>
-                    <PolaroidCard project={leftProject} index={(page - 1) * 2} onClick={() => openProject(leftProject)} />
-                    <p style={{ fontSize: '20px', color: '#222', textAlign: 'center', maxWidth: '180px', transform: 'rotate(-1deg)' }}>{leftProject.caption}</p>
+                    <PolaroidCard project={leftProject} index={(page - 1) * 2} onClick={() => openProject(leftProject)} isMobile={isMobile} />
+                    <p style={{ 
+                        fontSize: isMobile ? '11px' : '20px', // Scaled text size
+                        color: '#222', 
+                        textAlign: 'center', 
+                        maxWidth: isMobile ? '100px' : '180px', 
+                        transform: 'rotate(-1deg)' 
+                    }}>{leftProject.caption}</p>
                   </>
                 )}
-                {/* Left Page Number */}
-                <span style={{ position: 'absolute', bottom: '30px', left: '30px', fontSize: '12px', color: '#000', opacity: 0.6 }}>{ (page * 2) - 1 }</span>
+                <span style={{ position: 'absolute', bottom: isMobile ? '15px' : '30px', left: isMobile ? '15px' : '30px', fontSize: '12px', color: '#000', opacity: 0.6 }}>{ (page * 2) - 1 }</span>
               </div>
 
               {/* RIGHT PAGE */}
-              <div style={{ flex: 1, padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', position: 'relative' }}>
+              <div style={{ 
+                  flex: 1, 
+                  padding: isMobile ? '10px' : '40px', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: isMobile ? '10px' : '20px', 
+                  position: 'relative' 
+              }}>
                 {rightProject && (
                   <>
-                    <PolaroidCard project={rightProject} index={(page - 1) * 2 + 1} onClick={() => openProject(rightProject)} />
-                    <p style={{ fontSize: '20px', color: '#222', textAlign: 'center', maxWidth: '180px', transform: 'rotate(1deg)' }}>{rightProject.caption}</p>
+                    <PolaroidCard project={rightProject} index={(page - 1) * 2 + 1} onClick={() => openProject(rightProject)} isMobile={isMobile} />
+                    <p style={{ 
+                        fontSize: isMobile ? '11px' : '20px', 
+                        color: '#222', 
+                        textAlign: 'center', 
+                        maxWidth: isMobile ? '100px' : '180px', 
+                        transform: 'rotate(1deg)' 
+                    }}>{rightProject.caption}</p>
                   </>
                 )}
-                {/* Right Page Number */}
-                <span style={{ position: 'absolute', bottom: '30px', right: '30px', fontSize: '12px', color: '#000', opacity: 0.6 }}>{ page * 2 }</span>
+                <span style={{ position: 'absolute', bottom: isMobile ? '15px' : '30px', right: isMobile ? '15px' : '30px', fontSize: '12px', color: '#000', opacity: 0.6 }}>{ page * 2 }</span>
               </div>
             </>
           )}
@@ -221,13 +308,26 @@ export default function ProjectsModal({ isOpen, onClose }: { isOpen: boolean; on
 
         {/* Page Turn Buttons */}
         {page > 0 && (
-          <button onClick={() => turnPage('prev')} style={{ position: 'absolute', left: '-50px', top: '50%', transform: 'translateY(-50%) scaleX(-1)', background: 'transparent', border: 'none', cursor: 'pointer', zIndex: 10 }}>
-            <Image src="/assets/select_hover.png" alt="prev" width={40} height={23} style={{ imageRendering: 'pixelated' }} />
-          </button>
+          <button onClick={() => turnPage('prev')} style={{ 
+            position: 'absolute', 
+            left: isMobile ? '-15px' : '-50px', // Closer to edge on mobile
+            top: '50%', 
+            transform: 'translateY(-50%)', // Logic handled by keyframes now
+            background: 'transparent', border: 'none', cursor: 'pointer', zIndex: 10,
+            animation: 'bob-left 1s ease-in-out infinite' 
+        }}>
+          <Image src="/assets/select_hover.png" alt="prev" width={isMobile ? 30 : 40} height={isMobile ? 18 : 23} style={{ imageRendering: 'pixelated' }} />
+        </button>
         )}
         {page < maxSpread && (
-          <button onClick={() => turnPage('next')} style={{ position: 'absolute', right: '-50px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', zIndex: 10 }}>
-            <Image src="/assets/select_hover.png" alt="next" width={40} height={23} style={{ imageRendering: 'pixelated' }} />
+          <button onClick={() => turnPage('next')} style={{ 
+              position: 'absolute', 
+              right: isMobile ? '-15px' : '-50px', // Closer to edge on mobile
+              top: '50%', 
+              background: 'transparent', border: 'none', cursor: 'pointer', zIndex: 10,
+              animation: 'bob-right 1s ease-in-out infinite' 
+          }}>
+            <Image src="/assets/select_hover.png" alt="next" width={isMobile ? 30 : 40} height={isMobile ? 18 : 23} style={{ imageRendering: 'pixelated' }} />
           </button>
         )}
 
@@ -242,7 +342,12 @@ export default function ProjectsModal({ isOpen, onClose }: { isOpen: boolean; on
           onClick={handleDialogAction}
         >
           {/* PHOTO BOX */}
-          <div style={{ width: 'min(500px, 80vw)', height: 'min(500px, 50vh)', marginBottom: '160px', position: 'relative' }}>
+          <div style={{ 
+            width: isMobile ? '50vw' : '300px', 
+            height: isMobile ? '50vw' : '300px', 
+            marginBottom: isMobile ? '120px' : '160px', // Less margin on mobile
+            position: 'relative' 
+          }}>
             <Image src={activeProject.image} alt="p" fill style={{ objectFit: 'contain', imageRendering: 'pixelated' }} />
           </div>
 
@@ -309,26 +414,30 @@ export default function ProjectsModal({ isOpen, onClose }: { isOpen: boolean; on
           
           {/* DIALOGUE BOX (Identical to page.tsx) */}
           <div
-            key={`${activeProject.id}-${dialogIndex}`}
             style={{
               position: 'fixed',
               bottom: 0, left: 0, width: '100%',
-              height: '160px',
-              zIndex: 10000, // Higher than the backdrop
+              height: isMobile ? '120px' : '160px', // Shorter on mobile
+              zIndex: 10000,
               backgroundColor: 'black',
-              borderTop: '3px solid white',
-              outline: '3px solid black',
-              boxShadow: 'inset 0 0 0 3px black, inset 0 0 0 6px white',
-              padding: '25px 40px',
+              borderTop: `3px solid white`,
+              boxShadow: `inset 0 0 0 3px black, inset 0 0 0 6px white`,
+              padding: isMobile ? '15px 20px' : '25px 40px', // Less padding on mobile
               boxSizing: 'border-box',
               display: 'flex',
-              alignItems: 'flex-start',
               cursor: 'pointer',
               pointerEvents: 'auto',
             }}
             onClick={(e) => { e.stopPropagation(); handleDialogAction(); }}
           >
-            <p style={{ fontFamily: 'var(--font-omori), sans-serif', fontSize: '20px', lineHeight: '1.6', color: 'white', flex: 1, margin: 0 }}>
+            <p style={{ 
+              fontFamily: 'var(--font-omori), sans-serif', 
+              fontSize: isMobile ? '16px' : '20px', // Smaller font on mobile
+              lineHeight: '1.4', 
+              color: 'white', 
+              margin: 0, 
+              flex: 1 
+            }}>
               {displayed}
               {!done && (
                 <span style={{ display: 'inline-block', width: '8px', height: '18px', backgroundColor: 'white', marginLeft: '4px', verticalAlign: 'middle' }}/>

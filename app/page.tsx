@@ -403,7 +403,14 @@ export default function Home() {
       />
       <DesktopModal isOpen={desktopOpen} onClose={() => setDesktopOpen(false)} />
       <ProjectsModal isOpen={projectsOpen} onClose={() => setProjectsOpen(false)} />
-      <AboutModal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
+      <AboutModal 
+        isOpen={aboutOpen} 
+        onClose={() => setAboutOpen(false)} 
+        onOpenProjects={() => {
+          setAboutOpen(false); // Close About
+          setProjectsOpen(true); // Open Projects
+        }}
+      />
 
     </div>
   );

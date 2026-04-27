@@ -24,7 +24,7 @@ type TabContent = {
   equipped?: { label: string; item: string }[];
 };
 
-export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen: boolean; onClose: () => void; onOpenProjects: () => void; }) {
   const [data, setData] = useState<{ tabs: string[]; content: Record<string, TabContent> } | null>(null);
   const [activeTab, setActiveTab] = useState('');
   const [isMobile, setIsMobile] = useState(false);
@@ -223,9 +223,21 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
                 key={i} 
                 onMouseEnter={() => setHoveredStat(i)}
                 onMouseLeave={() => setHoveredStat(null)}
-                onClick={() => setModalData({ isOpen: true, text: `${stat.label}... It says "${stat.value}".` })}
+                onClick={() => {
+                  // If the label is PROJECTS, trigger the special navigation
+                  if (stat.label === "PROJECTS") {
+                    onOpenProjects();
+                  } else {
+                    // Otherwise, show the normal dialogue
+                    setModalData({ 
+                      isOpen: true, 
+                      text: `${stat.label}... It says "${stat.value}".` 
+                    });
+                  }
+                }}
                 style={{ 
-                  display: 'flex', padding: '12px 0', borderBottom: '2px solid #eee', gap: '15px', alignItems: 'center', cursor: 'pointer' 
+                  display: 'flex', alignItems: 'center', padding: '12px 0', 
+                  borderBottom: '2px solid #eee', cursor: 'pointer', gap: '10px' 
                 }}
               >
                 {/* THE HOVER HAND */}
@@ -264,7 +276,7 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
             </p>
             {done && (
               <div style={{ position: 'absolute', bottom: '15px', right: '20px', width: '30px', height: '20px', animation: 'float 2s infinite' }}>
-                <Image src="/assets/select_hover.png" alt="next" fill style={{ imageRendering: 'pixelated', objectFit: 'contain', filter: 'invert(1)' }} />
+                <Image src="/assets/select_hover.png" alt="next" fill style={{ imageRendering: 'pixelated', objectFit: 'contain'}} />
               </div>
             )}
           </div>

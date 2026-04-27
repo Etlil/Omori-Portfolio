@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 const DOUBLE_BORDER = {
@@ -8,13 +8,13 @@ const DOUBLE_BORDER = {
   boxShadow: 'inset 0 0 0 2px white, inset 0 0 0 5px black',
 };
 
+
 const DOUBLE_BORDER_DARK = {
   border: '3px solid black',
   boxShadow: 'inset 0 0 0 2px black, inset 0 0 0 5px white',
 };
 
-type Stat = { label: string; value: string | number; };
-
+type Stat = { label: string; value: string | number };
 type TabContent = {
   title: string;
   level: number;
@@ -26,99 +26,55 @@ type TabContent = {
 };
 
 export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [activeTab, setActiveTab] = useState('EQUIP');
+  const [data, setData] = useState<{ tabs: string[]; content: Record<string, TabContent> } | null>(null);
+  const [activeTab, setActiveTab] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
 
-  const tabs = ['???', 'EQUIP', 'POCKET', 'SKILLS', 'OPTIONS'];
+  // Pupil tracking state for the profile picture
+  const [pfpPupilOffset, setPfpPupilOffset] = useState({ x: 0, y: 0 });
 
-  const content: Record<string, TabContent> = {
-    '???': {
-      title: 'UNKNOWN',
-      level: 1,
-      hp: '33/33',
-      juice: '20/20',
-      stats: [
-        { label: 'HEART', value: 33 },
-        { label: 'JUICE', value: 20 },
-        { label: 'ATTACK', value: '???' },
-        { label: 'DEFENSE', value: '???' },
-        { label: 'SPEED', value: '???' },
-        { label: 'LUCK', value: '???' },
-        { label: 'HIT', value: '???' },
-      ],
-      description: "You don't know much about this person. But something feels familiar.",
-    },
-    EQUIP: {
-      title: 'ETLIL',
-      level: 20,
-      hp: '33/33',
-      juice: '20/20',
-      stats: [
-        { label: 'HEART', value: 33 },
-        { label: 'JUICE', value: 20 },
-        { label: 'ATTACK', value: 10 },
-        { label: 'DEFENSE', value: 6 },
-        { label: 'SPEED', value: 6 },
-        { label: 'LUCK', value: 5 },
-        { label: 'HIT', value: 100 },
-      ],
-      description: 'A developer living in White Space. You can see a faint glow of code in their eyes.',
-      equipped: [
-        { label: 'WEAPON', item: 'LAPTOP' },
-        { label: 'CHARM', item: 'PIXEL ART' },
-      ],
-    },
-    POCKET: {
-      title: 'INVENTORY',
-      level: 20,
-      hp: '33/33',
-      juice: '20/20',
-      stats: [
-        { label: 'NAME', value: 'Jezreel Pimentel' },
-        { label: 'AGE', value: 20 },
-        { label: 'LOCATION', value: 'Philippines' },
-        { label: 'INTERESTS', value: 'Game Dev, UI/UX' },
-        { label: 'TRAITS', value: 'Determined, Creative' },
-        { label: 'EMAIL', value: 'jezreelpimentel@gmail.com' },
-        { label: 'GITHUB', value: 'github.com/Etlil' },
-      ],
-      description: 'These are the things he carries with him. Always.',
-    },
-    SKILLS: {
-      title: 'ABILITIES',
-      level: 20,
-      hp: '33/33',
-      juice: '20/20',
-      stats: [
-        { label: 'FRONTEND', value: 'React, Next.js, Tailwind' },
-        { label: 'BACKEND', value: 'Node.js, Express' },
-        { label: 'DATABASE', value: 'MySQL, MongoDB' },
-        { label: 'TOOLS', value: 'Git, VS Code, Figma' },
-        { label: 'DESIGN', value: 'Pixel Art, UI/UX' },
-        { label: 'LEARNING', value: 'Three.js, Rust' },
-        { label: 'LANGUAGE', value: 'JS, TS, Python' },
-      ],
-      description: 'Skills forged through countless late nights and cold coffee.',
-    },
-    OPTIONS: {
-      title: 'SETTINGS',
-      level: 20,
-      hp: '33/33',
-      juice: '20/20',
-      stats: [
-        { label: 'SCHOOL', value: 'Your University' },
-        { label: 'COURSE', value: 'Computer Science' },
-        { label: 'YEAR', value: '3rd Year' },
-        { label: 'GOAL', value: 'Full Stack Engineer' },
-        { label: 'DREAM', value: 'Create an impactful RPG' },
-        { label: 'STATUS', value: 'Open to Work' },
-        { label: 'MOOD', value: 'Determined' },
-      ],
-      description: 'The future is bright. Something is waiting for you at the end.',
-    },
-  };
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Don't run on mobile or if modal is closed
+      if (isMobile || !isOpen) return;
 
-  if (!isOpen) return null;
+      // Calculate mouse position relative to the center of the screen
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
 
+      // Update pupil offset (6.25 is the sensitivity you used before)
+      setPfpPupilOffset({
+        x: x * 4,
+        y: y * 4
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isMobile, isOpen]);
+
+  // 1. Fetch JSON Implementation (Desktop Modal Style)
+  useEffect(() => {
+    fetch('/assets/aboutData.json')
+      .then(r => r.json())
+      .then(d => {
+        setData(d);
+        setActiveTab(d.tabs[0]);
+      })
+      .catch(console.error);
+  }, []);
+
+  // 2. Mobile Detection
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (!isOpen || !data) return null;
+
+  const { tabs, content } = data;
   const current = content[activeTab];
 
   return (
@@ -128,20 +84,21 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
       fontFamily: 'var(--font-omori), monospace',
       display: 'flex',
       flexDirection: 'column',
-      padding: '12px',
-      gap: '8px',
+      padding: isMobile ? '8px' : '20px', // Increased padding
+      gap: '12px',
       overflow: 'hidden',
     }}>
 
-      {/* TOP NAV BAR */}
+      {/* TOP NAV BAR - Increased height */}
       <div style={{
         ...DOUBLE_BORDER_DARK,
         background: 'black',
         display: 'flex',
         alignItems: 'center',
-        padding: '0 8px',
-        height: '52px',
+        padding: '0 12px',
+        height: isMobile ? '50px' : '65px',
         flexShrink: 0,
+        overflowX: 'auto',
       }}>
         {tabs.map((tab) => (
           <TabButton
@@ -149,9 +106,10 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
             label={tab}
             active={activeTab === tab}
             onClick={() => setActiveTab(tab)}
+            isMobile={isMobile}
           />
         ))}
-        <div style={{ marginLeft: 'auto' }}>
+        <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
           <button
             onClick={onClose}
             style={{
@@ -159,14 +117,13 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
               border: 'none',
               color: 'white',
               fontFamily: 'inherit',
-              fontSize: '14px',
+              fontSize: isMobile ? '16px' : '20px', // Increased from 12/14
               letterSpacing: '0.1em',
               cursor: 'pointer',
-              padding: '8px 16px',
+              padding: '8px 20px',
               borderLeft: '2px solid #555',
+              whiteSpace: 'nowrap',
             }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#f87171')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'white')}
           >
             EXIT
           </button>
@@ -176,7 +133,8 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
       {/* MAIN AREA */}
       <div style={{
         display: 'flex',
-        gap: '8px',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: '12px',
         flex: 1,
         minHeight: 0,
       }}>
@@ -184,187 +142,102 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
         {/* LEFT COLUMN */}
         <div style={{
           display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          width: '180px',
+          flexDirection: isMobile ? 'row' : 'column',
+          gap: '12px',
+          width: isMobile ? '100%' : '220px',
           flexShrink: 0,
+          justifyContent: 'flex-start',
+          alignItems: 'flex-start' 
         }}>
-
-          {/* Portrait */}
-          <div style={{
-            ...DOUBLE_BORDER,
+          {/* Portrait Box - Simple 1:1 Frame */}
+          <div style={{ 
+            position: 'relative', 
+            width: isMobile ? '100px' : '100%', 
+            aspectRatio: '1/1', 
+            border: '3px solid black', 
             background: 'white',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            padding: '12px 8px 8px',
-            flex: 1,
+            flexShrink: 0,
+            overflow: 'hidden',
+            boxSizing: 'border-box'
           }}>
-            <div style={{ position: 'relative', width: '100px', height: '120px', marginBottom: '8px' }}>
-              <Image src="/assets/me.png" alt="Profile" fill
-                style={{ imageRendering: 'pixelated', objectFit: 'contain' }}/>
-            </div>
-          </div>
+            {/* Base Head Image */}
+            <Image 
+              src="/assets/pfp.png" 
+              alt="P" 
+              fill 
+              style={{ imageRendering: 'pixelated', objectFit: 'cover' }} 
+            />
 
-          {/* Name + Level */}
-          <div style={{
-            ...DOUBLE_BORDER,
-            background: 'white',
-            padding: '8px 12px',
-          }}>
-            <div style={{ fontSize: '16px', letterSpacing: '0.05em' }}>
-              {activeTab === '???' ? 'OMORI' : 'ETLIL'}
-            </div>
-            <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>
-              LVL. {current.level}
-            </div>
-          </div>
-
-          {/* HP / Juice bars */}
-          <div style={{
-            ...DOUBLE_BORDER,
-            background: 'white',
-            padding: '10px 12px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-          }}>
-            <Bar icon="❤" color="#ef4444" value={current.hp ?? 'MAX'} pct={100} />
-            <Bar icon="💧" color="#22d3ee" value={current.juice ?? '80%'} pct={80} />
-          </div>
-
-          {/* Equipped items */}
-          {current.equipped && (
+            {/* Pupils Layer — Added on top */}
             <div style={{
-              ...DOUBLE_BORDER,
-              background: 'white',
-              padding: '8px 0',
-              display: 'flex',
-              flexDirection: 'column',
+              position: 'absolute',
+              // Using the eye-alignment percentages from your main page
+              top: isMobile ? '9.5%' : '45%',
+              left: isMobile ? '42.5%' : '26.5%',
+              width: isMobile ? '50%' : '50%',
+              height: isMobile ? '9.2%' : '9.2%',
+              transform: `translate(${pfpPupilOffset.x}px, ${pfpPupilOffset.y}px)`,
+              transition: 'transform 0.05s ease-out',
+              pointerEvents: 'none',
             }}>
-              {current.equipped.map((eq, i) => (
-                <div key={i}>
-                  <div style={{
-                    padding: '6px 12px',
-                    fontSize: '11px',
-                    letterSpacing: '0.1em',
-                    color: '#555',
-                    borderBottom: '1px solid #ddd',
-                  }}>{eq.label}</div>
-                  <div style={{
-                    padding: '6px 12px 8px',
-                    fontSize: '13px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    borderBottom: i < current.equipped!.length - 1 ? '2px solid black' : 'none',
-                  }}>
-                    <div style={{ position: 'relative', width: '20px', height: '14px', flexShrink: 0 }}>
-                      <Image src="/assets/select_hover.png" alt="" fill
-                        style={{ imageRendering: 'pixelated', objectFit: 'contain' }}/>
-                    </div>
-                    {eq.item}
-                  </div>
-                </div>
-              ))}
-              <div style={{ padding: '6px 12px', fontSize: '11px', color: '#aaa', letterSpacing: '0.1em' }}>
-                ——————
-              </div>
+              <Image
+                src="/assets/pupil.png"
+                alt=""
+                fill
+                style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
+              />
             </div>
-          )}
+          </div>
+
+          {/* Name Box - Aligned to the Portrait Box width */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            width: isMobile ? 'auto' : '100%', // Match full width on desktop
+            flex: isMobile ? 1 : 'none',       // Fill remaining space on mobile
+            boxSizing: 'border-box'
+          }}>
+            <div style={{ 
+              ...DOUBLE_BORDER, 
+              background: 'white', 
+              padding: '8px 16px',
+              width: '100%',
+              boxSizing: 'border-box', // Keeps the border aligned with the PFP frame
+              textAlign: 'center'      // Centers the name like a status screen
+            }}>
+              <div style={{ fontSize: isMobile ? '18px' : '24px', fontWeight: 'bold' }}>ETLIL</div>
+            </div>
+          </div>
         </div>
 
         {/* RIGHT COLUMN */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          flex: 1,
-          minWidth: 0,
-        }}>
-
-          {/* Stats table */}
-          <div style={{
-            ...DOUBLE_BORDER,
-            background: 'white',
-            padding: '16px 20px',
-            flex: 1,
-            overflowY: 'auto',
-          }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr',
-              gap: '6px',
-            }}>
-              {current.stats.map((stat, i) => (
-                <div key={i} style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: '16px',
-                  paddingBottom: '6px',
-                  borderBottom: i < current.stats.length - 1 ? '1px solid #eee' : 'none',
-                }}>
-                  <span style={{
-                    fontSize: '13px',
-                    letterSpacing: '0.1em',
-                    color: '#555',
-                    minWidth: '90px',
-                    flexShrink: 0,
-                  }}>{stat.label}:</span>
-                  <span style={{
-                    fontSize: '15px',
-                    letterSpacing: '0.05em',
-                    color: 'black',
-                  }}>{stat.value}</span>
-                  <span style={{
-                    marginLeft: 'auto',
-                    fontSize: '13px',
-                    color: '#bbb',
-                    letterSpacing: '0.1em',
-                    flexShrink: 0,
-                  }}>---</span>
-                </div>
-              ))}
-            </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, minWidth: 0 }}>
+          <div style={{ ...DOUBLE_BORDER, background: 'black', color: 'white', padding: '10px 20px', fontSize: isMobile ? '14px' : '18px', fontWeight: 'bold' }}>
+            {current.title} — {activeTab}
           </div>
 
-          {/* Description box */}
-          <div style={{
-            ...DOUBLE_BORDER_DARK,
-            background: 'black',
-            padding: '16px 20px',
-            minHeight: '100px',
-            flexShrink: 0,
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            <div style={{
-              position: 'absolute', top: '8px', right: '12px',
-              opacity: 0.15,
-              transform: 'rotate(12deg)',
-            }}>
-              <Image src="/assets/select_hover.png" alt="" width={50} height={34}
-                style={{ imageRendering: 'pixelated', filter: 'invert(1)' }}/>
-            </div>
-            <p style={{
-              color: 'white',
-              fontSize: '15px',
-              lineHeight: '1.7',
-              letterSpacing: '0.04em',
-              margin: 0,
-              fontStyle: 'italic',
-            }}>
-              {current.description}
-            </p>
+          <div style={{ ...DOUBLE_BORDER, background: 'white', padding: '20px', flex: 1, overflowY: 'auto' }}>
+            {current.stats.map((stat, i) => (
+              <div key={i} style={{ display: 'flex', padding: '12px 0', borderBottom: '2px solid #eee', gap: '15px', alignItems: 'center' }}>
+                <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#555', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>{stat.label}:</span>
+                <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{stat.value}</span>
+              </div>
+            ))}
           </div>
-
         </div>
       </div>
+      <style jsx global>{`
+        @keyframes bob-nav {
+          0%, 100% { transform: translateX(0); }
+          50% { transform: translateX(5px); }
+        }
+      `}</style>
     </div>
   );
 }
 
-function TabButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+// Sub-components
+function TabButton({ label, active, onClick, isMobile }: any) {
   const [hovered, setHovered] = useState(false);
   const show = active || hovered;
 
@@ -374,55 +247,60 @@ function TabButton({ label, active, onClick }: { label: string; active: boolean;
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: 'flex', alignItems: 'center', gap: '6px',
-        padding: '8px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: isMobile ? '8px 12px' : '12px 20px',
         cursor: 'pointer',
-        WebkitTapHighlightColor: 'transparent',
-        userSelect: 'none',
+        flexShrink: 0,
       }}
     >
-      <div style={{
-        position: 'relative', width: '22px', height: '16px',
-        flexShrink: 0,
-        opacity: show ? 1 : 0,
-        transition: 'opacity 0.05s',
-      }}>
-        <Image src="/assets/select_hover.png" alt="" fill
-          style={{ imageRendering: 'pixelated', objectFit: 'contain', filter: 'invert(1)' }}/>
+      {/* The Cursor Container */}
+      <div
+        style={{
+          position: 'relative',
+          width: isMobile ? '24px' : '32px', // Original-style size
+          height: isMobile ? '16px' : '20px',
+          flexShrink: 0,
+          opacity: show ? 1 : 0,
+          animation: show ? 'bob-nav 0.8s ease-in-out infinite' : 'none',
+        }}
+      >
+        <Image
+          src="/assets/select_hover.png"
+          alt=""
+          fill
+          style={{
+            imageRendering: 'pixelated',
+            objectFit: 'contain',
+          }}
+        />
       </div>
-      <span style={{
-        fontSize: '14px',
-        letterSpacing: '0.15em',
-        color: show ? 'white' : '#666',
-        transition: 'color 0.05s',
-      }}>{label}</span>
+
+      <span
+        style={{
+          fontSize: isMobile ? '15px' : '19px',
+          color: show ? 'white' : '#c3c3c3',
+          whiteSpace: 'nowrap',
+          fontWeight: active ? 'bold' : 'normal',
+          letterSpacing: '0.05em',
+        }}
+      >
+        {label}
+      </span>
     </div>
   );
 }
 
-function Bar({ icon, color, value, pct }: { icon: string; color: string; value: string; pct: number }) {
+function Bar({ icon, color, value, pct, isMobile }: any) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-      <span style={{ fontSize: '14px', lineHeight: 1 }}>{icon}</span>
-      <div style={{
-        flex: 1, height: '20px',
-        background: '#e5e7eb',
-        border: '2px solid black',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', top: 0, left: 0, bottom: 0,
-          width: `${pct}%`,
-          background: color,
-          transition: 'width 0.5s ease',
-        }}/>
-        <span style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '10px', color: 'white',
-          mixBlendMode: 'difference',
-          letterSpacing: '0.05em',
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <span style={{ fontSize: isMobile ? '18px' : '22px' }}>{icon}</span>
+      <div style={{ flex: 1, height: isMobile ? '20px' : '28px', background: '#e5e7eb', border: '3px solid black', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: `${pct}%`, background: color }}/>
+        <span style={{ 
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            fontSize: isMobile ? '11px' : '13px', color: 'white', mixBlendMode: 'difference', fontWeight: 'bold' 
         }}>{value}</span>
       </div>
     </div>

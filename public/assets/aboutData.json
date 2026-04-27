@@ -1,0 +1,69 @@
+{
+  "tabs": ["PERSONAL", "EDUCATION", "WORK", "GOALS"],
+  "content": {
+    "PERSONAL": {
+      "title": "ETLIL",
+      "stats": [
+        { "label": "NAME", "value": "Jezreel Pimentel" },
+        { "label": "BIO", "value": "A developer living in White Space for as long as they can remember." },
+        { "label": "INTERESTS", "value": "Game Dev, UI/UX, Pixel Art, Anime" },
+        { "label": "TRAITS", "value": "Determined, Creative, Calm, Curious" },
+        { "label": "LOCATION", "value": "Philippines" },
+        { "label": "STATUS", "value": "Open to Work" }
+      ],
+      "description": "A mysterious developer. You can see a faint glow of code in their eyes.",
+      "equipped": [
+        { "label": "WEAPON", "item": "LAPTOP" },
+        { "label": "CHARM", "item": "PIXEL ART" }
+      ]
+    },
+    "EDUCATION": {
+      "title": "KNOWLEDGE",
+      "level": 4,
+      "hp": "33/33",
+      "juice": "20/20",
+      "stats": [
+        { "label": "SCHOOL", "value": "Your University Name" },
+        { "label": "COURSE", "value": "Bachelor of Science in Computer Science" },
+        { "label": "YEAR", "value": "3rd Year Student" },
+        { "label": "STRAND", "value": "Science, Technology, Engineering & Math" },
+        { "label": "SUBJECTS", "value": "Data Structures, Web Systems, UI/UX Design" },
+        { "label": "HONORS", "value": "Dean's Lister (2022–2023)" },
+        { "label": "CLUBS", "value": "Computer Science Society" }
+      ],
+      "description": "Education is a powerful weapon. It sharpens the mind like a knife."
+    },
+    "WORK": {
+      "title": "EXPERIENCE",
+      "level": 12,
+      "hp": "33/33",
+      "juice": "20/20",
+      "stats": [
+        { "label": "INTERNSHIP", "value": "Tech Corp Inc. — Frontend Dev Intern" },
+        { "label": "FREELANCE", "value": "UI Designer for Indie Game Studios" },
+        { "label": "COMMISSION", "value": "Pixel Art & Web Design Commissions" },
+        { "label": "PROJECT 1", "value": "Omori-Inspired Portfolio (Next.js)" },
+        { "label": "PROJECT 2", "value": "AI Chatbot Integration (Node.js)" },
+        { "label": "PROJECT 3", "value": "School Management System (PHP)" },
+        { "label": "COLLAB", "value": "Open Source Contributor (GitHub)" }
+      ],
+      "description": "Hard work pays off. Every bug fixed is a step toward reality."
+    },
+    "GOALS": {
+      "title": "DESTINY",
+      "level": 99,
+      "hp": "33/33",
+      "juice": "20/20",
+      "stats": [
+        { "label": "CAREER", "value": "Full Stack Engineer" },
+        { "label": "DREAM", "value": "Create an impactful RPG game" },
+        { "label": "IMPROVE", "value": "Mastering Backend Architecture" },
+        { "label": "LEARN", "value": "Three.js, Rust, Game Dev" },
+        { "label": "SHORT TERM", "value": "Land a software engineering role" },
+        { "label": "LONG TERM", "value": "Build a game development studio" },
+        { "label": "MINDSET", "value": "Always be building something" }
+      ],
+      "description": "The future is bright. Something is waiting for you at the end."
+    }
+  }
+}

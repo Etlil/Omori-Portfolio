@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 const DOUBLE_BORDER = {
   border: '3px solid black',
   boxShadow: 'inset 0 0 0 2px white, inset 0 0 0 5px black',
 };
-
 
 const DOUBLE_BORDER_DARK = {
   border: '3px solid black',
@@ -29,31 +28,56 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
   const [data, setData] = useState<{ tabs: string[]; content: Record<string, TabContent> } | null>(null);
   const [activeTab, setActiveTab] = useState('');
   const [isMobile, setIsMobile] = useState(false);
-
-  // Pupil tracking state for the profile picture
   const [pfpPupilOffset, setPfpPupilOffset] = useState({ x: 0, y: 0 });
 
+  // --- NEW STATES FOR DIALOGUE & HOVER ---
+  const [modalData, setModalData] = useState({ isOpen: false, text: "" });
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+  const [hoveredStat, setHoveredStat] = useState<number | null>(null);
+  const intervalRef = useRef<any>(null);
+
+  // 1. Typewriter logic for the dialogue
+  useEffect(() => {
+    if (!modalData.isOpen) return;
+    setDisplayed('');
+    setDone(false);
+    let i = 0;
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      i++;
+      setDisplayed(modalData.text.slice(0, i));
+      if (i >= modalData.text.length) {
+        setDone(true);
+        clearInterval(intervalRef.current);
+      }
+    }, 30);
+    return () => clearInterval(intervalRef.current);
+  }, [modalData.isOpen, modalData.text]);
+
+  const handleDialogueAction = () => {
+    if (!done) {
+      clearInterval(intervalRef.current);
+      setDisplayed(modalData.text);
+      setDone(true);
+    } else {
+      setModalData({ isOpen: false, text: "" });
+    }
+  };
+
+  // Pupil tracking logic (KEPT AS REQUESTED)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Don't run on mobile or if modal is closed
       if (isMobile || !isOpen) return;
-
-      // Calculate mouse position relative to the center of the screen
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
-
-      // Update pupil offset (6.25 is the sensitivity you used before)
-      setPfpPupilOffset({
-        x: x * 4,
-        y: y * 4
-      });
+      setPfpPupilOffset({ x: x * 4, y: y * 4 });
     };
-
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isMobile, isOpen]);
 
-  // 1. Fetch JSON Implementation (Desktop Modal Style)
+  // Fetch JSON
   useEffect(() => {
     fetch('/assets/aboutData.json')
       .then(r => r.json())
@@ -64,7 +88,7 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
       .catch(console.error);
   }, []);
 
-  // 2. Mobile Detection
+  // Mobile Detection
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -84,12 +108,12 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
       fontFamily: 'var(--font-omori), monospace',
       display: 'flex',
       flexDirection: 'column',
-      padding: isMobile ? '8px' : '20px', // Increased padding
+      padding: isMobile ? '8px' : '20px',
       gap: '12px',
       overflow: 'hidden',
     }}>
 
-      {/* TOP NAV BAR - Increased height */}
+      {/* TOP NAV BAR */}
       <div style={{
         ...DOUBLE_BORDER_DARK,
         background: 'black',
@@ -117,7 +141,7 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
               border: 'none',
               color: 'white',
               fontFamily: 'inherit',
-              fontSize: isMobile ? '16px' : '20px', // Increased from 12/14
+              fontSize: isMobile ? '16px' : '20px',
               letterSpacing: '0.1em',
               cursor: 'pointer',
               padding: '8px 20px',
@@ -130,7 +154,6 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
         </div>
       </div>
 
-      {/* MAIN AREA */}
       <div style={{
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
@@ -149,7 +172,6 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
           justifyContent: 'flex-start',
           alignItems: 'flex-start' 
         }}>
-          {/* Portrait Box - Simple 1:1 Frame */}
           <div style={{ 
             position: 'relative', 
             width: isMobile ? '100px' : '100%', 
@@ -160,7 +182,6 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
             overflow: 'hidden',
             boxSizing: 'border-box'
           }}>
-            {/* Base Head Image */}
             <Image 
               src="/assets/pfp.png" 
               alt="P" 
@@ -168,43 +189,22 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
               style={{ imageRendering: 'pixelated', objectFit: 'cover' }} 
             />
 
-            {/* Pupils Layer — Added on top */}
             <div style={{
               position: 'absolute',
-              // Using the eye-alignment percentages from your main page
               top: isMobile ? '9.5%' : '45%',
-              left: isMobile ? '42.5%' : '26.5%',
+              left: isMobile ? '42.5%' : '27.5%',
               width: isMobile ? '50%' : '50%',
               height: isMobile ? '9.2%' : '9.2%',
               transform: `translate(${pfpPupilOffset.x}px, ${pfpPupilOffset.y}px)`,
               transition: 'transform 0.05s ease-out',
               pointerEvents: 'none',
             }}>
-              <Image
-                src="/assets/pupil.png"
-                alt=""
-                fill
-                style={{ imageRendering: 'pixelated', objectFit: 'contain' }}
-              />
+              <Image src="/assets/pupil.png" alt="" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
             </div>
           </div>
 
-          {/* Name Box - Aligned to the Portrait Box width */}
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            width: isMobile ? 'auto' : '100%', // Match full width on desktop
-            flex: isMobile ? 1 : 'none',       // Fill remaining space on mobile
-            boxSizing: 'border-box'
-          }}>
-            <div style={{ 
-              ...DOUBLE_BORDER, 
-              background: 'white', 
-              padding: '8px 16px',
-              width: '100%',
-              boxSizing: 'border-box', // Keeps the border aligned with the PFP frame
-              textAlign: 'center'      // Centers the name like a status screen
-            }}>
+          <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? 'auto' : '100%', flex: isMobile ? 1 : 'none', boxSizing: 'border-box' }}>
+            <div style={{ ...DOUBLE_BORDER, background: 'white', padding: '8px 16px', width: '100%', boxSizing: 'border-box', textAlign: 'center' }}>
               <div style={{ fontSize: isMobile ? '18px' : '24px', fontWeight: 'bold' }}>ETLIL</div>
             </div>
           </div>
@@ -216,9 +216,27 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
             {current.title} — {activeTab}
           </div>
 
+          {/* STATS TABLE - ADDED HOVER & CLICK DIALOGUE */}
           <div style={{ ...DOUBLE_BORDER, background: 'white', padding: '20px', flex: 1, overflowY: 'auto' }}>
             {current.stats.map((stat, i) => (
-              <div key={i} style={{ display: 'flex', padding: '12px 0', borderBottom: '2px solid #eee', gap: '15px', alignItems: 'center' }}>
+              <div 
+                key={i} 
+                onMouseEnter={() => setHoveredStat(i)}
+                onMouseLeave={() => setHoveredStat(null)}
+                onClick={() => setModalData({ isOpen: true, text: `${stat.label}... It says "${stat.value}".` })}
+                style={{ 
+                  display: 'flex', padding: '12px 0', borderBottom: '2px solid #eee', gap: '15px', alignItems: 'center', cursor: 'pointer' 
+                }}
+              >
+                {/* THE HOVER HAND */}
+                <div style={{ 
+                  width: '24px', height: '18px', position: 'relative', 
+                  opacity: hoveredStat === i ? 1 : 0,
+                  animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none'
+                }}>
+                  <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+                </div>
+
                 <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#555', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>{stat.label}:</span>
                 <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{stat.value}</span>
               </div>
@@ -226,10 +244,41 @@ export default function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClo
           </div>
         </div>
       </div>
+
+      {/* --- OMORI DIALOGUE MODAL --- */}
+      {modalData.isOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'transparent' }} onClick={handleDialogueAction} />
+          <div
+            style={{
+              bottom: 0, left: 0, width: '100%', height: '160px', zIndex: 10001,
+              backgroundColor: 'black', borderTop: '3px solid white', outline: '3px solid black',
+              boxShadow: 'inset 0 0 0 3px black, inset 0 0 0 6px white',
+              color: 'white', padding: '25px 40px', display: 'flex', cursor: 'pointer'
+            }}
+            onClick={(e) => { e.stopPropagation(); handleDialogueAction(); }}
+          >
+            <p style={{ fontFamily: 'var(--font-omori)', fontSize: '20px', lineHeight: '1.6', flex: 1, margin: 0 }}>
+              {displayed}
+              {!done && <span style={{ display: 'inline-block', width: '8px', height: '18px', backgroundColor: 'white', marginLeft: '4px' }}/>}
+            </p>
+            {done && (
+              <div style={{ position: 'absolute', bottom: '15px', right: '20px', width: '30px', height: '20px', animation: 'float 2s infinite' }}>
+                <Image src="/assets/select_hover.png" alt="next" fill style={{ imageRendering: 'pixelated', objectFit: 'contain', filter: 'invert(1)' }} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <style jsx global>{`
         @keyframes bob-nav {
           0%, 100% { transform: translateX(0); }
           50% { transform: translateX(5px); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
         }
       `}</style>
     </div>
@@ -255,11 +304,10 @@ function TabButton({ label, active, onClick, isMobile }: any) {
         flexShrink: 0,
       }}
     >
-      {/* The Cursor Container */}
       <div
         style={{
           position: 'relative',
-          width: isMobile ? '24px' : '32px', // Original-style size
+          width: isMobile ? '24px' : '32px',
           height: isMobile ? '16px' : '20px',
           flexShrink: 0,
           opacity: show ? 1 : 0,
@@ -273,6 +321,7 @@ function TabButton({ label, active, onClick, isMobile }: any) {
           style={{
             imageRendering: 'pixelated',
             objectFit: 'contain',
+            // USER REQUESTED: NO INVERT ON THE HAND
           }}
         />
       </div>
@@ -288,21 +337,6 @@ function TabButton({ label, active, onClick, isMobile }: any) {
       >
         {label}
       </span>
-    </div>
-  );
-}
-
-function Bar({ icon, color, value, pct, isMobile }: any) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <span style={{ fontSize: isMobile ? '18px' : '22px' }}>{icon}</span>
-      <div style={{ flex: 1, height: isMobile ? '20px' : '28px', background: '#e5e7eb', border: '3px solid black', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: `${pct}%`, background: color }}/>
-        <span style={{ 
-            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', 
-            fontSize: isMobile ? '11px' : '13px', color: 'white', mixBlendMode: 'difference', fontWeight: 'bold' 
-        }}>{value}</span>
-      </div>
     </div>
   );
 }

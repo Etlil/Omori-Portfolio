@@ -37,7 +37,8 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
   // Change this type at the top
   const [modalData, setModalData] = useState<{ 
     isOpen: boolean; 
-    dialog: { text: string; face: string }[] 
+    dialog: { text: string; face: string }[];
+    choices?: { label: string; action: string; url?: string }[];
   }>({ isOpen: false, dialog: [] });
   const [dialogIndex, setDialogIndex] = useState(0); // Track current line
   const [displayed, setDisplayed] = useState('');
@@ -72,8 +73,11 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
       if (dialogIndex < modalData.dialog.length - 1) {
         setDialogIndex(prev => prev + 1);
       } else {
-        setModalData({ isOpen: false, dialog: [] });
-        setDialogIndex(0);
+        // If there are choices, don't auto-close — wait for choice click
+        if (!modalData.choices?.length) {
+          setModalData({ isOpen: false, dialog: [] });
+          setDialogIndex(0);
+        }
       }
     }
   };
@@ -262,7 +266,10 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
               onMouseLeave={() => setHoveredStat(null)}
               onClick={() => {
                 if (stat.label === "PROJECTS") {
-                  onOpenProjects();
+                  const dialogs = (stat as any).dialog || [{ text: "View my projects?", face: 'act1' }];
+                  const choices = (stat as any).choices || [];
+                  setModalData({ isOpen: true, dialog: dialogs, choices });
+                  setDialogIndex(0);
                 } else if (stat.label === "INTERESTS") {
                   setInterestView('categories');
                 } else {
@@ -351,29 +358,64 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
 
       {/* --- OMORI DIALOGUE MODAL --- */}
       {modalData.isOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'flex-end' }}>
-          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'transparent' }} onClick={handleDialogueAction} />
-          <div
-            style={{
-              bottom: 0, left: 0, width: '100%', height: '160px', zIndex: 10001,
-              backgroundColor: 'black', borderTop: '3px solid white', outline: '3px solid black',
-              boxShadow: 'inset 0 0 0 3px black, inset 0 0 0 6px white',
-              color: 'white', padding: '25px 40px', display: 'flex', cursor: 'pointer'
-            }}
-            onClick={(e) => { e.stopPropagation(); handleDialogueAction(); }}
-          >
-            <p style={{ fontFamily: 'var(--font-omori)', fontSize: '20px', lineHeight: '1.6', flex: 1, margin: 0 }}>
-              {displayed}
-              {!done && <span style={{ display: 'inline-block', width: '8px', height: '18px', backgroundColor: 'white', marginLeft: '4px' }}/>}
-            </p>
-            {done && (
-              <div style={{ position: 'absolute', bottom: '15px', right: '20px', width: '30px', height: '20px', animation: 'float 2s infinite' }}>
-                <Image src="/assets/select_hover.png" alt="next" fill style={{ imageRendering: 'pixelated', objectFit: 'contain'}} />
-              </div>
-            )}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'flex-end' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'transparent' }} onClick={handleDialogueAction} />
+        
+        {/* CHOICES BOX */}
+        {done && modalData.choices && modalData.choices.length > 0 && (
+          <div style={{
+            position: 'fixed',
+            bottom: '215px',
+            right: 0,
+            zIndex: 10002,
+            backgroundColor: 'black',
+            border: '3px solid white',
+            boxShadow: 'inset 0 0 0 3px black, inset 0 0 0 6px white',
+            borderRight: 'none',
+            color: 'white',
+            minWidth: '260px',
+            padding: '4px 0',
+          }}>
+            {modalData.choices.map((choice, i) => (
+              <ChoiceRow
+                key={i}
+                label={choice.label}
+                onClick={() => {
+                  if (choice.action === 'open' && choice.url) {
+                    window.open(choice.url, '_blank');
+                  } else if (choice.action === 'projects') {
+                    onOpenProjects();
+                  }
+                  setModalData({ isOpen: false, dialog: [] });
+                  setDialogIndex(0);
+                }}
+              />
+            ))}
           </div>
+        )}
+
+        <div
+          style={{
+            bottom: 0, left: 0, width: '100%', height: '160px', zIndex: 10001,
+            backgroundColor: 'black', borderTop: '3px solid white', outline: '3px solid black',
+            boxShadow: 'inset 0 0 0 3px black, inset 0 0 0 6px white',
+            color: 'white', padding: '25px 40px', display: 'flex', cursor: 'pointer',
+            position: 'fixed',
+          }}
+          onClick={(e) => { e.stopPropagation(); handleDialogueAction(); }}
+        >
+          <p style={{ fontFamily: 'var(--font-omori)', fontSize: '20px', lineHeight: '1.6', flex: 1, margin: 0 }}>
+            {displayed}
+            {!done && <span style={{ display: 'inline-block', width: '8px', height: '18px', backgroundColor: 'white', marginLeft: '4px' }}/>}
+          </p>
+          {done && !modalData.choices?.length && (
+            <div style={{ position: 'absolute', bottom: '15px', right: '20px', width: '30px', height: '20px', animation: 'float 2s infinite' }}>
+              <Image src="/assets/select_hover.png" alt="next" fill style={{ imageRendering: 'pixelated', objectFit: 'contain'}} />
+            </div>
+          )}
         </div>
-      )}
+      </div>
+    )}
 
       <style jsx global>{`
         @keyframes bob-nav {
@@ -389,6 +431,22 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
   );
 }
 
+function ChoiceRow({ label, onClick }: { label: string; onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', cursor: 'pointer' }}
+    >
+      <div style={{ width: '24px', height: '18px', position: 'relative', flexShrink: 0, opacity: hovered ? 1 : 0 }}>
+        <Image src="/assets/select_hover.png" alt="" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+      </div>
+      <span style={{ fontFamily: 'var(--font-omori)', fontSize: '18px', letterSpacing: '0.1em', color: 'white' }}>{label}</span>
+    </div>
+  );
+}
 // Sub-components
 function TabButton({ label, active, onClick, isMobile }: any) {
   const [hovered, setHovered] = useState(false);

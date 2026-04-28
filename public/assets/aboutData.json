@@ -264,10 +264,14 @@
           ]
         },
         { 
-          "label": "PROJECTS", 
+          "label": "PROJECTS",
           "value": "View Here",
           "dialog": [
-            { "text": "I have worked on several projects throughout my studies.", "face": "act1" }
+            { "text": "I have worked on several projects throughout my studies. Want to check them out?", "face": "act1" }
+          ],
+          "choices": [
+            { "label": "VIEW PROJECTS", "action": "projects" },
+            { "label": "BACK", "action": "close" }
           ]
         }
       ]

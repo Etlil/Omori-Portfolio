@@ -283,35 +283,41 @@
           "label": "CAREER", 
           "value": "Software Engineer",
           "dialog": [
-            { "text": "I want to become a software engineer.", "face": "act1" }
+            { "text": "I want to become a software engineer.", "face": "act1" },
+            { "text": "I really want to pursue this career path because I'm being used to this field.", "face": "act1" }
           ]
         },
         { 
           "label": "DREAM", 
           "value": "I want to create an Indie Game",
           "dialog": [
-            { "text": "My dream is to create an indie game.", "face": "act1" }
+            { "text": "My dream is to create an indie game.", "face": "act1" },
+            { "text": "I have a lot of game ideas that I want to create, and I hope I can create them in the future.", "face": "act1" },
+            { "text": "I also learning some arts and music for game development so I will have my own resources for my own game.", "face": "act1" }
           ]
         },
         { 
           "label": "IMPROVE", 
           "value": "I want to improve all of my skills.",
           "dialog": [
-            { "text": "I want to continuously improve my skills.", "face": "act1" }
+            { "text": "I want to continuously improve my skills.", "face": "act1" },
+            { "text": "That means 'all' of my skills, including programming, design, and music.", "face": "act1" },
+            { "text": "Because someday it would be useful.", "face": "act1" }
           ]
         },
         { 
           "label": "LEARN", 
           "value": "Music Production, Game Design, Game Development, Programming",
           "dialog": [
-            { "text": "I want to learn more about music production, game design, game development, and programming.", "face": "act1" }
+            { "text": "I want to learn more about music production, game design, game development, and programming.", "face": "act1" },
+            { "text": "I want to learn anything I'll be able to learn.", "face": "act1" }
           ]
         },
         { 
           "label": "MINDSET", 
           "value": "Adapt, learn, and overcome any challenge",
           "dialog": [
-            { "text": "I believe in adapting, learning, and overcoming any challenge.", "face": "act1" }
+            { "text": "I believe in myself adapting and learning from any challenge.", "face": "act1" }
           ]
         }
       ]

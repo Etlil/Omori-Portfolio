@@ -25,45 +25,66 @@ type TabContent = {
 };
 
 export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen: boolean; onClose: () => void; onOpenProjects: () => void; }) {
-  const [data, setData] = useState<{ tabs: string[]; content: Record<string, TabContent> } | null>(null);
+  const [data, setData] = useState<{ tabs: string[]; content: Record<string, TabContent>; introDialog?: { text: string; face: string }[] } | null>(null);
   const [activeTab, setActiveTab] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [pfpPupilOffset, setPfpPupilOffset] = useState({ x: 0, y: 0 });
 
+  const [introSeen, setIntroSeen] = useState(false);
+  const [interestView, setInterestView] = useState<null | 'categories' | string>(null);
+
   // --- NEW STATES FOR DIALOGUE & HOVER ---
-  const [modalData, setModalData] = useState({ isOpen: false, text: "" });
+  // Change this type at the top
+  const [modalData, setModalData] = useState<{ 
+    isOpen: boolean; 
+    dialog: { text: string; face: string }[] 
+  }>({ isOpen: false, dialog: [] });
+  const [dialogIndex, setDialogIndex] = useState(0); // Track current line
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
   const intervalRef = useRef<any>(null);
 
-  // 1. Typewriter logic for the dialogue
   useEffect(() => {
     if (!modalData.isOpen) return;
+    const currentText = modalData.dialog[dialogIndex]?.text || "";
     setDisplayed('');
     setDone(false);
     let i = 0;
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       i++;
-      setDisplayed(modalData.text.slice(0, i));
-      if (i >= modalData.text.length) {
+      setDisplayed(currentText.slice(0, i));
+      if (i >= currentText.length) {
         setDone(true);
         clearInterval(intervalRef.current);
       }
     }, 30);
     return () => clearInterval(intervalRef.current);
-  }, [modalData.isOpen, modalData.text]);
+  }, [modalData.isOpen, modalData.dialog, dialogIndex]);
 
   const handleDialogueAction = () => {
     if (!done) {
       clearInterval(intervalRef.current);
-      setDisplayed(modalData.text);
+      setDisplayed(modalData.dialog[dialogIndex]?.text || "");
       setDone(true);
     } else {
-      setModalData({ isOpen: false, text: "" });
+      if (dialogIndex < modalData.dialog.length - 1) {
+        setDialogIndex(prev => prev + 1);
+      } else {
+        setModalData({ isOpen: false, dialog: [] });
+        setDialogIndex(0);
+      }
     }
   };
+
+  useEffect(() => {
+    if (isOpen && data && !introSeen) {
+      setModalData({ isOpen: true, dialog: data.introDialog || [] });
+      setDialogIndex(0);
+      setIntroSeen(true);
+    }
+  }, [isOpen]);
 
   // Pupil tracking logic (KEPT AS REQUESTED)
   useEffect(() => {
@@ -129,7 +150,7 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
             key={tab}
             label={tab}
             active={activeTab === tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => { setActiveTab(tab); setInterestView(null); }}
             isMobile={isMobile}
           />
         ))}
@@ -183,24 +204,28 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
             boxSizing: 'border-box'
           }}>
             <Image 
-              src="/assets/pfp.png" 
+              src={modalData.isOpen 
+                ? `/assets/${modalData.dialog[dialogIndex]?.face || 'act0'}.png` 
+                : '/assets/pfp.png'}
               alt="P" 
               fill 
               style={{ imageRendering: 'pixelated', objectFit: 'cover' }} 
             />
 
-            <div style={{
-              position: 'absolute',
-              top: isMobile ? '9.5%' : '45%',
-              left: isMobile ? '42.5%' : '27.5%',
-              width: isMobile ? '50%' : '50%',
-              height: isMobile ? '9.2%' : '9.2%',
-              transform: `translate(${pfpPupilOffset.x}px, ${pfpPupilOffset.y}px)`,
-              transition: 'transform 0.05s ease-out',
-              pointerEvents: 'none',
-            }}>
-              <Image src="/assets/pupil.png" alt="" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
-            </div>
+            {!modalData.isOpen && (
+              <div style={{
+                position: 'absolute',
+                top: isMobile ? '9.5%' : '45%',
+                left: isMobile ? '42.5%' : '27.5%',
+                width: isMobile ? '50%' : '50%',
+                height: isMobile ? '9.2%' : '9.2%',
+                transform: `translate(${pfpPupilOffset.x}px, ${pfpPupilOffset.y}px)`,
+                transition: 'transform 0.05s ease-out',
+                pointerEvents: 'none',
+              }}>
+                <Image src="/assets/pupil.png" alt="" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? 'auto' : '100%', flex: isMobile ? 1 : 'none', boxSizing: 'border-box' }}>
@@ -218,42 +243,109 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
 
           {/* STATS TABLE - ADDED HOVER & CLICK DIALOGUE */}
           <div style={{ ...DOUBLE_BORDER, background: 'white', padding: '20px', flex: 1, overflowY: 'auto' }}>
-            {current.stats.map((stat, i) => (
-              <div 
-                key={i} 
+          
+          {/* BACK BUTTON — shown when drilling into a category */}
+          {interestView && (
+            <div
+              onClick={() => setInterestView(interestView === 'categories' ? null : 'categories')}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 0', marginBottom: '12px', borderBottom: '2px solid #eee', cursor: 'pointer' }}
+            >
+              <span style={{ fontSize: '14px', color: '#555', letterSpacing: '0.1em' }}>← BACK</span>
+            </div>
+          )}
+
+          {/* NORMAL STATS VIEW */}
+          {!interestView && current.stats.map((stat, i) => (
+            <div
+              key={i}
+              onMouseEnter={() => setHoveredStat(i)}
+              onMouseLeave={() => setHoveredStat(null)}
+              onClick={() => {
+                if (stat.label === "PROJECTS") {
+                  onOpenProjects();
+                } else if (stat.label === "INTERESTS") {
+                  setInterestView('categories');
+                } else {
+                  const dialogs = (stat as any).dialog ||
+                    [{ text: `${stat.label}... It says "${stat.value}".`, face: 'act1' }];
+                  setModalData({ isOpen: true, dialog: dialogs });
+                  setDialogIndex(0);
+                }
+              }}
+              style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '2px solid #eee', cursor: 'pointer', gap: '10px' }}
+            >
+              <div style={{ width: '24px', height: '18px', position: 'relative', opacity: hoveredStat === i ? 1 : 0, animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none' }}>
+                <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+              </div>
+              <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#555', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>{stat.label}:</span>
+              <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{stat.value}</span>
+            </div>
+          ))}
+
+          {/* INTEREST CATEGORIES VIEW */}
+          {interestView === 'categories' && (() => {
+            const interestStat = current.stats.find(s => s.label === "INTERESTS") as any;
+            const categories = interestStat?.interests ? Object.keys(interestStat.interests) : [];
+            return categories.map((cat, i) => (
+              <div
+                key={i}
                 onMouseEnter={() => setHoveredStat(i)}
                 onMouseLeave={() => setHoveredStat(null)}
                 onClick={() => {
-                  // If the label is PROJECTS, trigger the special navigation
-                  if (stat.label === "PROJECTS") {
-                    onOpenProjects();
+                  const catData = interestStat.interests[cat];
+                  if (cat === 'Programming') {
+                    if (catData?.dialog) {
+                      setModalData({ isOpen: true, dialog: catData.dialog });
+                      setDialogIndex(0);
+                    }
+                  } else if (cat === 'Art') {
+                    if (catData?.dialog) {
+                      setModalData({ isOpen: true, dialog: catData.dialog });
+                      setDialogIndex(0);
+                    }
                   } else {
-                    // Otherwise, show the normal dialogue
-                    setModalData({ 
-                      isOpen: true, 
-                      text: `${stat.label}... It says "${stat.value}".` 
-                    });
+                    setInterestView(cat);
+                    if (catData?.dialog) {
+                      setModalData({ isOpen: true, dialog: catData.dialog });
+                      setDialogIndex(0);
+                    }
                   }
                 }}
-                style={{ 
-                  display: 'flex', alignItems: 'center', padding: '12px 0', 
-                  borderBottom: '2px solid #eee', cursor: 'pointer', gap: '10px' 
-                }}
+                style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '2px solid #eee', cursor: 'pointer', gap: '10px' }}
               >
-                {/* THE HOVER HAND */}
-                <div style={{ 
-                  width: '24px', height: '18px', position: 'relative', 
-                  opacity: hoveredStat === i ? 1 : 0,
-                  animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none'
-                }}>
+                <div style={{ width: '24px', height: '18px', position: 'relative', opacity: hoveredStat === i ? 1 : 0, animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none' }}>
                   <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
                 </div>
-
-                <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#555', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>{stat.label}:</span>
-                <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{stat.value}</span>
+                <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{cat}</span>
               </div>
-            ))}
-          </div>
+            ));
+          })()}
+
+          {/* INTEREST ITEMS VIEW */}
+          {interestView && interestView !== 'categories' && (() => {
+            const interestStat = current.stats.find(s => s.label === "INTERESTS") as any;
+            const items = interestStat?.interests?.[interestView]?.items || [];
+            return items.map((item: any, i: number) => (
+              <div
+                key={i}
+                onMouseEnter={() => setHoveredStat(i)}
+                onMouseLeave={() => setHoveredStat(null)}
+                onClick={() => {
+                  setModalData({ isOpen: true, dialog: item.dialog || [{ text: item.name, face: 'act0' }] });
+                  setDialogIndex(0);
+                }}
+                style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '2px solid #eee', cursor: 'pointer', gap: '10px' }}
+              >
+                <div style={{ width: '24px', height: '18px', position: 'relative', opacity: hoveredStat === i ? 1 : 0, animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none' }}>
+                  <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+                </div>
+                <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#555', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>#{i + 1}</span>
+                <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{item.name}</span>
+              </div>
+            ));
+          })()}
+
+        </div>
         </div>
       </div>
 

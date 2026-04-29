@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import DesktopModal from './components/DesktopModal';
 import ProjectsModal from './components/ProjectsModal';
 import AboutModal from './components/AboutModal';
+import SkillsModal from './components/SkillsModal';
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
@@ -17,6 +18,7 @@ export default function Home() {
   const [projectsOpen, setProjectsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const router = useRouter();
+  const [skillsOpen, setSkillsOpen] = useState(false);
   
 
   const [modalData, setModalData] = useState<{
@@ -283,7 +285,7 @@ export default function Home() {
           </div>
 
           <div style={{ position: 'absolute', bottom: '5%', right: '5%', pointerEvents: 'auto', zIndex: 20, transform: `translate(${tilt.x * 10}px, ${tilt.y * 8}px)` }}>
-            <SceneItem label="Skills" isDark={isDark} href="#contact">
+            <SceneItem label="Skills" isDark={isDark} onClick={() => setSkillsOpen(true)}>
               <div style={{ position: 'relative', width: isMobile ? '50px' : '60px', height: '50px' }}>
                 <Image src="/assets/tissue_box.png" alt="Tissue" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
               </div>
@@ -411,6 +413,7 @@ export default function Home() {
           setProjectsOpen(true); // Open Projects
         }}
       />
+      <SkillsModal isOpen={skillsOpen} onClose={() => setSkillsOpen(false)} isDark={isDark} />
 
     </div>
   );

@@ -1,0 +1,7 @@
+[
+  { "id": 1, "text": "React & Next.js" },
+  { "id": 2, "text": "TypeScript" },
+  { "id": 3, "text": "Node.js" },
+  { "id": 4, "text": "Tailwind CSS" },
+  { "id": 5, "text": "Git & GitHub" }
+]

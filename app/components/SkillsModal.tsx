@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 
 interface Skill { id: number; text: string; }
 
@@ -16,9 +17,6 @@ export default function SkillsModal({
   const [animating, setAnimating] = useState(false);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
   const wheelCooldown = useRef(false);
-
-  const bg = isDark ? 'black' : 'white';
-  const fg = isDark ? 'white' : 'black';
 
   useEffect(() => {
     if (isOpen) {
@@ -41,7 +39,6 @@ export default function SkillsModal({
     }, 350);
   };
 
-  // Mouse wheel handler
   useEffect(() => {
     if (!isOpen) return;
     const handleWheel = (e: WheelEvent) => {
@@ -63,156 +60,136 @@ export default function SkillsModal({
     <>
       <style>{`
         @keyframes tissueOut {
-            from { transform: translateY(0) rotate(0deg); opacity: 1; }
-            to   { transform: translateY(${direction === 'right' ? '-120px' : '120px'}) rotate(${direction === 'right' ? '-10' : '10'}deg); opacity: 0; }
+          from { transform: translateY(0) rotate(0deg); opacity: 1; }
+          to   { transform: translateY(${direction === 'right' ? '-120px' : '120px'}) rotate(${direction === 'right' ? '-10' : '10'}deg); opacity: 0; }
         }
         @keyframes tissueIn {
-            from { transform: translateY(${direction === 'right' ? '80px' : '-80px'}) rotate(${direction === 'right' ? '7' : '-7'}deg); opacity: 0; }
-            to   { transform: translateY(0) rotate(0deg); opacity: 1; }
+          from { transform: translateY(${direction === 'right' ? '80px' : '-80px'}) rotate(${direction === 'right' ? '7' : '-7'}deg); opacity: 0; }
+          to   { transform: translateY(0) rotate(0deg); opacity: 1; }
         }
         .tissue-out { animation: tissueOut 0.35s ease forwards; }
         .tissue-in  { animation: tissueIn  0.35s ease forwards; }
       `}</style>
 
+      
       {/* Backdrop */}
       <div
-        style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+        style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(0,0,0,0.6)' }}
         onClick={onClose}
       />
 
-      {/* Box */}
+      {/* Centered modal container */}
       <div style={{
         position: 'fixed',
         top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        zIndex: 201,
+        zIndex: 301,
         width: '460px',
         fontFamily: 'var(--font-omori), sans-serif',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}>
 
-        {/* Tissue emerging from top */}
-        <div style={{ display: 'flex', justifyContent: 'center', height: '160px', overflow: 'visible', position: 'relative' }}>
+        {/* Tissue + box image layers */}
+        <div style={{ position: 'relative', width: '460px', height: '380px', marginTop: '160px' }}>
+
+          {/* UNDERLAY — behind tissue */}
+          <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+            <Image src="/assets/box_under.png" alt="" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+          </div>
+
+          {/* TISSUE — middle layer */}
           <div
             className={animating ? 'tissue-out' : 'tissue-in'}
             style={{
-              width: '300px',
-              backgroundColor: bg,
-              border: `3px solid ${fg}`,
-              boxShadow: `inset 0 0 0 2px ${bg}, inset 0 0 0 6px ${fg}`,
+              position: 'absolute',
+              bottom: '60%',
+              left: '20%',
+              transform: 'translateX(-50%)',
+              width: '240px',
+              height: '240px',
+              backgroundColor: 'white',
+              border: '3px solid black',
+              boxShadow: 'inset 0 0 0 2px white, inset 0 0 0 6px black',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               padding: '20px 24px',
-              position: 'absolute',
-              bottom: '-10px',
               borderRadius: '6px 6px 0 0',
               minHeight: '130px',
+              zIndex: 1,
             }}
           >
             <p style={{
-              color: fg,
-              fontSize: '20px',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              textAlign: 'center',
-              margin: 0,
-              lineHeight: 1.6,
+              color: 'black', fontSize: '18px',
+              letterSpacing: '0.1em', textTransform: 'uppercase',
+              textAlign: 'center', marginBottom: '100px', lineHeight: 1.6,
             }}>
               {skill.text}
             </p>
           </div>
-        </div>
 
-        {/* Box body */}
-        <div style={{
-          backgroundColor: bg,
-          border: `3px solid ${fg}`,
-          boxShadow: `inset 0 0 0 2px ${bg}, inset 0 0 0 6px ${fg}`,
-          padding: '28px 24px 24px',
-        }}>
-
-          {/* Box opening slot */}
-          <div style={{
-            width: '220px',
-            height: '36px',
-            margin: '0 auto 24px',
-            border: `3px solid ${fg}`,
-            boxShadow: `inset 0 0 0 2px ${bg}, inset 0 0 0 6px ${fg}`,
-            borderRadius: '50px',
-            backgroundColor: isDark ? '#111' : '#eee',
-          }} />
-
-          {/* Label */}
-          <p style={{
-            color: fg, textAlign: 'center',
-            fontSize: '12px', letterSpacing: '0.3em',
-            textTransform: 'uppercase', opacity: 0.5,
-            margin: '0 0 12px',
-          }}>
-            SKILLS
-          </p>
-
-          {/* Scroll hint */}
-          <p style={{
-            color: fg, textAlign: 'center',
-            fontSize: '10px', letterSpacing: '0.2em',
-            textTransform: 'uppercase', opacity: 0.3,
-            margin: '0 0 20px',
-          }}>
-            ↕ scroll to browse
-          </p>
-
-          {/* Counter */}
-          <p style={{
-            color: fg, textAlign: 'center',
-            fontSize: '14px', letterSpacing: '0.15em',
-            margin: '0 0 20px', opacity: 0.7,
-          }}>
-            {current + 1} / {skills.length}
-          </p>
-
-          {/* Buttons */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-            {(['prev', 'next'] as const).map(dir => (
-              <button
-                key={dir}
-                onClick={() => go(dir)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  backgroundColor: bg,
-                  color: fg,
-                  border: `3px solid ${fg}`,
-                  boxShadow: `inset 0 0 0 2px ${bg}, inset 0 0 0 6px ${fg}`,
-                  fontFamily: 'var(--font-omori), sans-serif',
-                  fontSize: '13px',
-                  letterSpacing: '0.15em',
-                  cursor: `url('/assets/cursor.png') 4 4, pointer`,
-                  textTransform: 'uppercase',
-                }}
-              >
-                {dir === 'prev' ? '← PREV' : 'NEXT →'}
-              </button>
-            ))}
+          {/* OVERLAY — above tissue */}
+          <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
+            <Image src="/assets/box_overlay.png" alt="" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
           </div>
-        </div>
 
-        {/* Close */}
-        <div style={{ textAlign: 'center', marginTop: '14px' }}>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none', border: 'none',
-              color: fg,
-              fontFamily: 'var(--font-omori), sans-serif',
-              fontSize: '12px', letterSpacing: '0.2em',
-              opacity: 0.5,
-              cursor: `url('/assets/cursor.png') 4 4, pointer`,
-              textTransform: 'uppercase',
-            }}
-          >
-            [ CLOSE ]
-          </button>
+          {/* Controls INSIDE the box, at the bottom */}
+          <div style={{
+            position: 'absolute',
+            bottom: '70px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 3,
+            width: '340px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '10px',
+          }}>
+            <p style={{ color: 'white', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.4, margin: 0 }}>
+              ↕ scroll to browse
+            </p>
+
+            <p style={{ color: 'white', fontSize: '14px', letterSpacing: '0.15em', opacity: 0.8, margin: 0 }}>
+              {current + 1} / {skills.length}
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+              {(['prev', 'next'] as const).map(dir => (
+                <button
+                  key={dir}
+                  onClick={() => go(dir)}
+                  style={{
+                    flex: 1, padding: '10px',
+                    backgroundColor: 'black', color: 'white',
+                    border: '3px solid white',
+                    boxShadow: 'inset 0 0 0 2px black, inset 0 0 0 6px white',
+                    fontFamily: 'var(--font-omori), sans-serif',
+                    fontSize: '12px', letterSpacing: '0.15em',
+                    cursor: `url('/assets/cursor.png') 4 4, pointer`,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {dir === 'prev' ? '← PREV' : 'NEXT →'}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none', border: 'none', color: 'white',
+                fontFamily: 'var(--font-omori), sans-serif',
+                fontSize: '12px', letterSpacing: '0.2em',
+                opacity: 0.5, cursor: `url('/assets/cursor.png') 4 4, pointer`,
+                textTransform: 'uppercase',
+              }}
+            >
+              [ CLOSE ]
+            </button>
+          </div>
         </div>
       </div>
     </>

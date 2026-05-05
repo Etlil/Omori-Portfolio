@@ -95,7 +95,16 @@ export default function Home() {
 
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => {
-      if (window.innerWidth < 768 || modalData.isOpen || desktopOpen) return; 
+      if (modalData.isOpen || desktopOpen) return;
+      if (window.innerWidth < 768) {
+        // On mobile, only track pupils — skip tilt/wobble
+        const x = (e.clientX / window.innerWidth - 0.5) * 2;
+        const y = (e.clientY / window.innerHeight - 0.5) * 2;
+        if (charRef.current) {
+          setPupilOffset({ x: x * 4.25, y: y * 4.25 });
+        }
+        return;
+      }
 
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -146,10 +155,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const isIOS = typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function';
-    if (!isIOS) {
-      startGyro();
-    }
+    // Gyro disabled on mobile
   }, []);
 
   const bx = targetWobbleRef.current.x;

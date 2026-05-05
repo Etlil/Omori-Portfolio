@@ -463,7 +463,7 @@ export default function SkillsModal({
           <div style={{
             position: 'absolute',
             bottom: '20%',
-            left: 'clamp(calc(10% + 160px), calc(23% + 260px), calc(23% + 260px))',
+            left: '85%',
             height: 'min(240px, 52vw)',
             zIndex: 10,
             display: 'flex',

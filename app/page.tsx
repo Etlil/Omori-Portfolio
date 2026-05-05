@@ -13,7 +13,6 @@ export default function Home() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [charHovered, setCharHovered] = useState(false);
   const [bulbHovered, setBulbHovered] = useState(false);
-  const smoothRef = useRef({ x: 0, y: 0 });
   const targetWobbleRef = useRef({ x: 0, y: 0 });
   const [projectsOpen, setProjectsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -96,15 +95,7 @@ export default function Home() {
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => {
       if (modalData.isOpen || desktopOpen) return;
-      if (window.innerWidth < 768) {
-        // On mobile, only track pupils — skip tilt/wobble
-        const x = (e.clientX / window.innerWidth - 0.5) * 2;
-        const y = (e.clientY / window.innerHeight - 0.5) * 2;
-        if (charRef.current) {
-          setPupilOffset({ x: x * 4.25, y: y * 4.25 });
-        }
-        return;
-      }
+      if (window.innerWidth < 768) return;
 
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -121,41 +112,6 @@ export default function Home() {
     };
     window.addEventListener('mousemove', handleMouse);
     return () => window.removeEventListener('mousemove', handleMouse);
-  }, []);
-
-  const startGyro = () => {
-    const handler = (e: DeviceOrientationEvent) => {
-      const targetX = Math.max(-1, Math.min(1, (e.gamma ?? 0) / 30));
-      const targetY = Math.max(-1, Math.min(1, ((e.beta ?? 0) - 20) / 30));
-
-      smoothRef.current.x += (targetX - smoothRef.current.x) * 0.1;
-      smoothRef.current.y += (targetY - smoothRef.current.y) * 0.1;
-
-      setTilt({ x: smoothRef.current.x, y: smoothRef.current.y });
-
-      setPupilOffset({
-        x: smoothRef.current.x * 1.5, // 50% of 5
-        y: smoothRef.current.y * 1.5, // 50% of 5
-      });
-      targetWobbleRef.current = { x: smoothRef.current.x * 18, y: smoothRef.current.y * 10 };
-    };
-    if (
-      typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function'
-    ) {
-      (DeviceOrientationEvent as unknown as { requestPermission: () => Promise<string> })
-        .requestPermission()
-        .then(res => {
-          if (res === 'granted') {
-            window.addEventListener('deviceorientation', handler, true);
-          }
-        }).catch(console.error);
-    } else {
-      window.addEventListener('deviceorientation', handler, true);
-    }
-  };
-
-  useEffect(() => {
-    // Gyro disabled on mobile
   }, []);
 
   const bx = targetWobbleRef.current.x;
@@ -345,7 +301,7 @@ export default function Home() {
               width: isMobile ? '14%' : '17%',
               height: isMobile ? '3.8%' : '4.5%',
               // Logic: If charHovered is true, we use 0 for the offsets, otherwise we use the parallax values
-              transform: `translate(${charHovered ? 0 : pupilOffset.x}px, ${(charHovered ? 0 : pupilOffset.y) + (charHovered ? -4 : 0)}px)`,
+              transform: `translate(${charHovered ? 0 : pupilOffset.x}px, ${(charHovered ? 0 : pupilOffset.y) + (charHovered ? -4 : 0) + (isMobile ? -1 : 0)}px)`,
               transition: 'none', // Slightly increased duration for a smoother "snap" back to center
               pointerEvents: 'none',
             }}>

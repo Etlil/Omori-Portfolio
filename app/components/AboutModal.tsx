@@ -306,8 +306,8 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects, isDark = f
           }}>
             <Image 
               src={modalData.isOpen 
-                ? `/assets/${modalData.dialog[dialogIndex]?.face || 'act0'}.png` 
-                : (isMobile ? '/assets/act0.png' : '/assets/pfp.png')}
+                ? `/assets/faces/${modalData.dialog[dialogIndex]?.face || 'act0'}.png` 
+                : (isMobile ? '/assets/faces/act0.png' : '/assets/pfp.png')}
               alt="P" 
               fill 
               style={{ imageRendering: 'pixelated', objectFit: 'cover' }} 

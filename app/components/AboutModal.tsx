@@ -379,7 +379,7 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects, isDark = f
               style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: `2px solid ${isDark ? '#333' : '#eee'}`, cursor: 'pointer', gap: '10px' }}
             >
               <div style={{ width: '24px', height: '18px', position: 'relative', opacity: hoveredStat === i ? 1 : 0, animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none' }}>
-                <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain', filter: isDark ? 'invert(1)' : 'none' }} />
+                <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain', filter: isDark ? 'none' : 'none' }} />
               </div>
               <span style={{ fontSize: isMobile ? '14px' : '16px', color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>{stat.label}:</span>
               <span style={{ fontSize: isMobile ? '16px' : '20px', color: isDark ? 'white' : 'black', flex: 1 }}>{stat.value}</span>
@@ -462,7 +462,7 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects, isDark = f
         {done && modalData.choices && modalData.choices.length > 0 && (
           <div style={{
             position: 'fixed',
-            bottom: '215px',
+            bottom: isMobile ? '140px' : '215px',
             right: 0,
             zIndex: 10002,
             backgroundColor: 'black',
@@ -493,20 +493,32 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects, isDark = f
 
         <div
           style={{
-            bottom: 0, left: 0, width: '100%', height: '160px', zIndex: 10001,
+            bottom: 0, left: 0, width: '100%',
+            height: isMobile ? 'auto' : '160px',
+            minHeight: isMobile ? '120px' : 'unset',
+            zIndex: 10001,
             backgroundColor: 'black', borderTop: '3px solid white', outline: '3px solid black',
             boxShadow: 'inset 0 0 0 3px black, inset 0 0 0 6px white',
-            color: 'white', padding: '25px 40px', display: 'flex', cursor: 'pointer',
+            color: 'white',
+            padding: isMobile ? '16px 20px 20px' : '25px 40px',
+            display: 'flex', cursor: 'pointer',
             position: 'fixed',
+            boxSizing: 'border-box',
           }}
           onClick={(e) => { e.stopPropagation(); handleDialogueAction(); }}
+          onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleDialogueAction(); }}
         >
-          <p style={{ fontFamily: 'var(--font-omori)', fontSize: '20px', lineHeight: '1.6', flex: 1, margin: 0 }}>
+          <p style={{
+            fontFamily: 'var(--font-omori)',
+            fontSize: isMobile ? '15px' : '20px',
+            lineHeight: '1.6', flex: 1, margin: 0,
+            paddingRight: '30px',
+          }}>
             {displayed}
-            {!done && <span style={{ display: 'inline-block', width: '8px', height: '18px', backgroundColor: 'white', marginLeft: '4px' }}/>}
+            {!done && <span style={{ display: 'inline-block', width: isMobile ? '6px' : '8px', height: '1em', backgroundColor: 'white', marginLeft: '3px', verticalAlign: 'text-bottom' }}/>}
           </p>
           {done && !modalData.choices?.length && (
-            <div style={{ position: 'absolute', bottom: '15px', right: '20px', width: '30px', height: '20px', animation: 'float 2s infinite' }}>
+            <div style={{ position: 'absolute', bottom: '12px', right: '14px', width: isMobile ? '24px' : '30px', height: isMobile ? '16px' : '20px', animation: 'float 2s infinite' }}>
               <Image src="/assets/select_hover.png" alt="next" fill style={{ imageRendering: 'pixelated', objectFit: 'contain'}} />
             </div>
           )}

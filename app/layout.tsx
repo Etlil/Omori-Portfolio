@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* 3. Apply the font variable to the body */}
-      <body className={`${omoriFont.variable} font-sans antialiased`}>
+      <body className={`${omoriFont.variable} antialiased`} style={{ overflow: 'hidden', height: '100%', margin: 0, padding: 0 }}>
         <PreloadWrapper>{children}</PreloadWrapper>
       </body>
     </html>

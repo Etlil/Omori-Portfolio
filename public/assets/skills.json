@@ -1,22 +1,203 @@
 [
-  { "id": 1, "text": "HTML", "icon": "/assets/skills/html.svg" },
-  { "id": 2, "text": "Java", "icon": "/assets/skills/java.svg" },
-  { "id": 3, "text": "Javascript", "icon": "/assets/skills/js.svg" },
-  { "id": 4, "text": "Python", "icon": "/assets/skills/python.svg" },
-  { "id": 5, "text": "PHP", "icon": "/assets/skills/php.svg" },
-  { "id": 6, "text": "Kotlin", "icon": "/assets/skills/kotlin.svg" },
-  { "id": 7, "text": "MySQL", "icon": "/assets/skills/mysql.svg" },
-  { "id": 8, "text": "SQLite", "icon": "/assets/skills/sqlite.svg" },
-  { "id": 9, "text": "MongoDB", "icon": "/assets/skills/mongodb.svg" },
-  { "id": 10, "text": "Laravel", "icon": "/assets/skills/laravel.svg" },
-  { "id": 11, "text": "Angular", "icon": "/assets/skills/angular.svg" },
-  { "id": 12, "text": "Git & GitHub", "icon": "/assets/skills/git.svg" },
-  { "id": 13, "text": "React & React Native", "icon": "/assets/skills/react.svg" },
-  { "id": 14, "text": "Next.js", "icon": "/assets/skills/next.js.svg" },
-  { "id": 15, "text": "Adobe Photoshop", "icon": "/assets/skills/ps.svg" },
-  { "id": 16, "text": "Adobe Premiere Pro", "icon": "/assets/skills/pr.svg" },
-  { "id": 17, "text": "Adobe InDesign", "icon": "/assets/skills/indesign.svg" },
-  { "id": 18, "text": "Microsoft Office", "icon": "/assets/skills/msoffice.svg" },
-  { "id": 19, "text": "Godot", "icon": "/assets/skills/godot.svg" },
-  { "id": 20, "text": "Aseprite", "icon": "/assets/skills/aseprite.svg" }
+  {
+    "id": 1,
+    "text": "HTML",
+    "icon": "/assets/skills/html.svg",
+    "dialog": [
+      "Everybody knows HTML. It's the skeleton of the web.",
+      "I learned it in 1st year of college on the subject 'Introduction to Computing'",
+      "and I've been using it ever since."
+    ]
+  },
+  {
+    "id": 2,
+    "text": "Java",
+    "icon": "/assets/skills/java.svg",
+    "dialog": [
+      "I learned this in 1st year college on the subject 'Computer Programming 1'",
+      "This was my favorite subject back then.",
+      "And it was fun to learn and challenging."
+    ]
+  },
+  {
+    "id": 3,
+    "text": "Javascript",
+    "icon": "/assets/skills/js.svg",
+    "dialog": [
+      "I also learned this around summer in my 1st year in college on the subject 'Web Systems and Technologies 1'.",
+      "It was kinda easy because we have a knowledge on java at that point.",
+      "So learning it was so ez for me."
+    ]
+  },
+  {
+    "id": 4,
+    "text": "Python",
+    "icon": "/assets/skills/python.svg",
+    "dialog": [
+      "I think this is the easiest programming language to learn.",
+      "It's kinda boring and it doesn't give you much of a challenge.",
+      "But our professor in college made it fun and interesting to learn.",
+      "I learned it in our subject 'Event-Driven Programming' on my 2nd year and I enjoyed it."
+    ]
+  },
+  {
+    "id": 5,
+    "text": "PHP",
+    "icon": "/assets/skills/php.svg",
+    "dialog": [
+      "This is my first backend language with databases and shit.",
+      "I learned it in my 'Web Systems and Technologies 2' subject back when I'm 2nd year",
+      "And I'm still using it now because laravel is my most used framework this time."
+    ]
+  },
+  {
+    "id": 6,
+    "text": "Kotlin",
+    "icon": "/assets/skills/kotlin.svg",
+    "dialog": [
+      "This shi it ass, I hate learning this.",
+      "But I kinda have a knowledge about it.",
+      "It is just this was my first language to self learn."
+    ]
+  },
+  {
+    "id": 7,
+    "text": "MySQL",
+    "icon": "/assets/skills/mysql.svg",
+    "dialog": [
+      "This was my first database I learned.",
+      "I learned this on my subject 'Information Management 1'",
+      "And it's kinda fun and challenging.",
+      "I still using this in my projects until now",
+      "But I hate the XAMPP error messages, it really annoys me."
+    ]
+  },
+  {
+    "id": 8,
+    "text": "SQLite",
+    "icon": "/assets/skills/sqlite.svg",
+    "dialog": [
+      "I learned this by myself btw.",
+      "I was so interested when I heard I can use it as an offline database.",
+      "It was easy because I have a knowledge of database concepts."
+    ]
+  },
+  {
+    "id": 9,
+    "text": "MongoDB",
+    "icon": "/assets/skills/mongodb.svg",
+    "dialog": [
+      "Is someone using ts?",
+      "Hello?",
+      "I don't know if this DB is necessary but I learned it on my 'Information Management 2' subject.",
+      "And we didn't use it after that HAHAHAHA."
+    ]
+  },
+  {
+    "id": 10,
+    "text": "Laravel",
+    "icon": "/assets/skills/laravel.svg",
+    "dialog": [
+      "I first learned this in my 'Advance Database Systems' subject in my 3rd year.",
+      "It was kinda hard at first, but after learning it, I really like it.",
+      "I think this is my most used framework now."
+    ]
+  },
+  {
+    "id": 11,
+    "text": "Angular",
+    "icon": "/assets/skills/angular.svg",
+    "dialog": [
+      "I learned this in my 'Application Development' subject.",
+      "It was hard to follow but my mind says 'I'll Adapt'.",
+      "So yeah, I create many projects using this framework and I really like it."
+    ]
+  },
+  {
+    "id": 12,
+    "text": "Git & GitHub",
+    "icon": "/assets/skills/git.svg",
+    "dialog": [
+      "I only learned this in my intern arc T_T.",
+      "It was so hard and confusing at first",
+      "But now I can say that I have a knowledge about it and I can use it for my projects."
+    ]
+  },
+  {
+    "id": 13,
+    "text": "React & React Native",
+    "icon": "/assets/skills/react.svg",
+    "dialog": [
+      "I learned the react native part in my 'Mobile Application Development' subject",
+      "This language is so hard bro, too many red lines per debug session",
+      "and nah, after my ongoing project I will not use this shi again."
+    ]
+  },
+  {
+    "id": 14,
+    "text": "Next.js",
+    "icon": "/assets/skills/next.js.svg",
+    "dialog": [
+      "This is also an easy frame work for me to learn.",
+      "It's not that hard for me to be honest after I learned Angular",
+      "I focused this rather than the laravel at first.",
+      "I learned this on my subject 'Human Computer Interaction 2' and I really like it, I will use this for my next projects."
+    ]
+  },
+  {
+    "id": 15,
+    "text": "Adobe Photoshop",
+    "icon": "/assets/skills/ps.svg",
+    "dialog": [
+      "I first learned this on my Grade 6.",
+      "I also know a lot of photo editing software but I think Adobe Photoshop is the most 'aura farming' one."
+    ]
+  },
+  {
+    "id": 16,
+    "text": "Adobe Premiere Pro",
+    "icon": "/assets/skills/pr.svg",
+    "dialog": [
+      "Ts is larp haha",
+      "But I know the concept of basic video editing bruh.",
+      "Don't doubt me, I can learn this shi if I want to."
+    ]
+  },
+  {
+    "id": 17,
+    "text": "Adobe InDesign",
+    "icon": "/assets/skills/indesign.svg",
+    "dialog": [
+      "I learned it back in my 'Desktop Publishing' subject.",
+      "I also know how to create professional layouts.",
+      "So I'm confident to say I know it well."
+    ]
+  },
+  {
+    "id": 18,
+    "text": "Microsoft Office",
+    "icon": "/assets/skills/msoffice.svg",
+    "dialog": [
+      "Yeah bro I'm not a Criminology student"
+    ]
+  },
+  {
+    "id": 19,
+    "text": "Godot",
+    "icon": "/assets/skills/godot.svg",
+    "dialog": [
+      "I only have a bit knowledge about it, but I will improve it next time.",
+      "It's a game engine btw for those who don't know."
+    ]
+  },
+  {
+    "id": 20,
+    "text": "Aseprite",
+    "icon": "/assets/skills/aseprite.svg",
+    "dialog": [
+      "This is for creating pixelated sprites.",
+      "Not the drinking soda.",
+      "But it's for the game animation."
+    ]
+  }
 ]

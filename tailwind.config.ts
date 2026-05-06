@@ -8,7 +8,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        omori: ["var(--font-omori)", "sans-serif"],
+        sans: ['var(--font-omori)', 'Courier New', 'Courier', 'monospace'],
       },
     },
   },

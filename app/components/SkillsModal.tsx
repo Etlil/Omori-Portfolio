@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
-interface Skill { id: number; text: string; icon?: string; }
+interface Skill { id: number; text: string; icon?: string; dialog?: string[]; }
 
 // Spritesheet: ~12 frames in a single row on a black background
 // Each frame is roughly 1/12th of the total width
@@ -28,22 +28,78 @@ export default function SkillsModal({
   const [paperY, setPaperY] = useState(0);
   const [paperOpacity, setPaperOpacity] = useState(1);
   const [iconHovered, setIconHovered] = useState(false);
+  const [dialogLine, setDialogLine] = useState(0);
+  const [displayed, setDisplayed] = useState('');
+  const [dialogDone, setDialogDone] = useState(false);
+  const dialogIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dialogIndexRef = useRef(0);
   const wheelCooldown = useRef(false);
+  const dialogBusyRef = useRef(false);
   const animFrameRef = useRef<number | null>(null);
   const spriteIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const flyXRef = useRef(0);
   const flyRotRef = useRef(0);
   const animating = paperState !== 'rest';
 
+  const startDialog = (lines: string[], lineIndex: number) => {
+    if (dialogIntervalRef.current) clearInterval(dialogIntervalRef.current);
+    setDialogLine(lineIndex);
+    setDisplayed('');
+    setDialogDone(false);
+    dialogIndexRef.current = 0;
+    const text = lines[lineIndex];
+    dialogIntervalRef.current = setInterval(() => {
+      dialogIndexRef.current += 1;
+      setDisplayed(text.slice(0, dialogIndexRef.current));
+      if (dialogIndexRef.current >= text.length) {
+        setDialogDone(true);
+        if (dialogIntervalRef.current) clearInterval(dialogIntervalRef.current);
+      }
+    }, 35);
+  };
+
+  const [dialogActive, setDialogActive] = useState(false);
+  const dialogBusy = dialogActive && !dialogDone;
+  dialogBusyRef.current = dialogBusy;
+
+  const handleIconClick = () => {
+    if (!skill?.dialog) return;
+    setDialogActive(true);
+    startDialog(skill.dialog, 0);
+  };
+
+  const handleDialogAdvance = () => {
+    if (!skill?.dialog || !dialogActive) return;
+    if (!dialogDone) {
+      if (dialogIntervalRef.current) clearInterval(dialogIntervalRef.current);
+      setDisplayed(skill.dialog[dialogLine]);
+      setDialogDone(true);
+      return;
+    }
+    const nextLine = dialogLine + 1;
+    if (nextLine < skill.dialog.length) {
+      startDialog(skill.dialog, nextLine);
+    } else {
+      setDialogActive(false);
+      setDisplayed('');
+      setDialogLine(0);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
-      fetch('/assets/skills.json').then(r => r.json()).then(setSkills);
-      setCurrent(0);
-      setPaperState('rest');
-      setSpriteFrame(0);
-      setPaperY(0);
-      setPaperOpacity(1);
-      setSwingAngle(0);
+      fetch('/assets/skills.json').then(r => r.json()).then((data) => {
+        setSkills(data);
+        setCurrent(0);
+        setPaperState('rest');
+        setSpriteFrame(0);
+        setPaperY(0);
+        setPaperOpacity(1);
+        setSwingAngle(0);
+        setDialogActive(false);
+        setDisplayed('');
+        setDialogLine(0);
+      });
     }
   }, [isOpen]);
 
@@ -52,6 +108,7 @@ export default function SkillsModal({
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (spriteIntervalRef.current) clearInterval(spriteIntervalRef.current);
+      if (dialogIntervalRef.current) clearInterval(dialogIntervalRef.current);
     };
   }, []);
 
@@ -122,6 +179,9 @@ export default function SkillsModal({
               setPaperOpacity(1);
               setSwingAngle(0);
               setSpriteFrame(0);
+              setDialogActive(false);
+              setDisplayed('');
+              setDialogLine(0);
             }, 320);
           }
         };
@@ -160,6 +220,9 @@ export default function SkillsModal({
           setPaperOpacity(1);
           setSwingAngle(0);
           setSpriteFrame(0);
+          setDialogActive(false);
+          setDisplayed('');
+          setDialogLine(0);
         }
       };
       animFrameRef.current = requestAnimationFrame(animate);
@@ -170,7 +233,7 @@ export default function SkillsModal({
     if (!isOpen) return;
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (wheelCooldown.current) return;
+      if (wheelCooldown.current || dialogBusyRef.current) return;
       wheelCooldown.current = true;
       setTimeout(() => { wheelCooldown.current = false; }, 1100);
       go(e.deltaY > 0 ? 'next' : 'prev');
@@ -285,8 +348,38 @@ export default function SkillsModal({
       {/* Backdrop */}
       <div
         style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(0,0,0,0.6)' }}
-        onClick={onClose}
       />
+
+      {/* Close button — top right */}
+      <button
+        onClick={!dialogBusy ? onClose : undefined}
+        style={{
+          position: 'fixed',
+          top: '16px',
+          right: '16px',
+          zIndex: 400,
+          background: 'black',
+          border: '3px solid white',
+          boxShadow: 'inset 0 0 0 2px black, inset 0 0 0 4px white',
+          color: 'white',
+          fontFamily: 'var(--font-omori), sans-serif',
+          fontSize: 'clamp(10px, 3vw, 14px)',
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          padding: 'clamp(6px, 2vw, 10px) clamp(12px, 4vw, 20px)',
+          cursor: dialogBusy ? 'default' : `url('/assets/cursor.png') 4 4, pointer`,
+          opacity: dialogBusy ? 0.3 : 1,
+          transition: 'opacity 0.2s ease',
+          WebkitTapHighlightColor: 'transparent',
+          minWidth: '44px',
+          minHeight: '44px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        ✕ CLOSE
+      </button>
 
       {/* Centered modal container */}
       <div style={{
@@ -486,6 +579,7 @@ export default function SkillsModal({
                       <div
                         onMouseEnter={() => setIconHovered(true)}
                         onMouseLeave={() => setIconHovered(false)}
+                        onClick={handleIconClick}
                         style={{
                           position: 'relative',
                           zIndex: 999,
@@ -495,7 +589,7 @@ export default function SkillsModal({
                           filter: iconHovered
                             ? 'drop-shadow(0 6px 8px rgba(0,0,0,0.5))'
                             : 'drop-shadow(0 2px 2px rgba(0,0,0,0.15))',
-                          cursor: 'default',
+                          cursor: `url('/assets/cursor.png') 4 4, pointer`,
                         }}
                       >
                         <img
@@ -537,11 +631,11 @@ export default function SkillsModal({
             gap: '30px',
           }}>
             <div
-              onClick={!animating ? () => go('prev') : undefined}
+              onClick={!animating && !dialogBusy ? () => go('prev') : undefined}
               style={{
                 position: 'relative', width: 'min(56px, 10vw)', height: 'min(44px, 8vw)',
                 cursor: animating ? 'default' : `url('/assets/cursor.png') 4 4, pointer`,
-                opacity: animating ? 0.4 : 1,
+                opacity: animating || dialogBusy ? 0.4 : 1,
                 animation: 'floatUp 1.4s ease-in-out infinite',
                 transform: 'rotate(-90deg)',
               }}
@@ -549,12 +643,12 @@ export default function SkillsModal({
               <Image src="/assets/select_hover.png" alt="prev" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
             </div>
             <div
-              onClick={!animating ? () => go('next') : undefined}
+              onClick={!animating && !dialogBusy ? () => go('next') : undefined}
               style={{
                 position: 'relative', width: 'min(56px, 10vw)', height: 'min(44px, 8vw)',
                 cursor: animating ? 'default' : `url('/assets/cursor.png') 4 4, pointer`,
-                opacity: animating ? 0.4 : 1,
-                animation: 'floatDown 1.4s ease-in-out infinite',
+                opacity: animating || dialogBusy ? 0.4 : 1,
+              animation: 'floatDown 1.4s ease-in-out infinite',
                 transform: 'rotate(90deg)',
               }}
             >
@@ -570,7 +664,7 @@ export default function SkillsModal({
           {/* Controls INSIDE the box, at the bottom */}
           <div style={{
             position: 'absolute',
-            bottom: '70px',
+            bottom: '125px',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 3,
@@ -590,22 +684,72 @@ export default function SkillsModal({
             <p style={{ color: 'white', fontSize: '20px', letterSpacing: '0.15em', opacity: 0.5, margin: 0 }}>
               {current + 1} / {skills.length}
             </p>
-
-            <button
-              onClick={onClose}
-              style={{
-                background: 'none', border: 'none', color: 'white',
-                fontFamily: 'var(--font-omori), sans-serif',
-                fontSize: '12px', letterSpacing: '0.2em',
-                opacity: 0.5, cursor: `url('/assets/cursor.png') 4 4, pointer`,
-                textTransform: 'uppercase',
-              }}
-            >
-              [ CLOSE ]
-            </button>
           </div>
         </div>
       </div>
+
+      {/* Omori-style dialog box */}
+      {dialogActive && skill?.dialog && (
+        <div
+          onClick={handleDialogAdvance}
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            height: '160px',
+            zIndex: 400,
+            backgroundColor: 'black',
+            border: '3px solid white',
+            boxShadow: 'inset 0 0 0 3px black, inset 0 0 0 6px white',
+            borderLeft: 'none',
+            borderRight: 'none',
+            borderBottom: 'none',
+            color: 'white',
+            padding: '20px 28px',
+            boxSizing: 'border-box',
+            display: 'flex',
+            alignItems: 'flex-start',
+            cursor: `url('/assets/cursor.png') 4 4, pointer`,
+          }}
+        >
+          <p style={{
+            fontFamily: 'var(--font-omori), sans-serif',
+            fontSize: '18px',
+            lineHeight: '1.7',
+            letterSpacing: '0.04em',
+            margin: 0,
+            flex: 1,
+            whiteSpace: 'pre-line',
+          }}>
+            {displayed}
+            {!dialogDone && (
+              <span style={{
+                display: 'inline-block',
+                width: '2px',
+                height: '1em',
+                backgroundColor: 'white',
+                marginLeft: '2px',
+                verticalAlign: 'text-bottom',
+                animation: 'blink 0.7s step-end infinite',
+              }} />
+            )}
+          </p>
+          {dialogDone && dialogLine < (skill.dialog?.length ?? 1) - 1 && (
+            <div style={{
+              position: 'absolute',
+              bottom: '12px',
+              right: '16px',
+              width: '36px',
+              height: '28px',
+              pointerEvents: 'none',
+              animation: 'float 2s ease-in-out infinite',
+            }}>
+              <Image src="/assets/select_hover.png" alt="next" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+            </div>
+          )}
+        </div>
+      )}
     </>
 );
 }

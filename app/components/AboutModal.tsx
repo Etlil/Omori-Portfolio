@@ -24,7 +24,16 @@ type TabContent = {
   equipped?: { label: string; item: string }[];
 };
 
-export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen: boolean; onClose: () => void; onOpenProjects: () => void; }) {
+export default function AboutModal({ isOpen, onClose, onOpenProjects, isDark = false }: { isOpen: boolean; onClose: () => void; onOpenProjects: () => void; isDark?: boolean; }) {
+  const bg = isDark ? 'black' : 'white';
+  const fg = isDark ? 'white' : 'black';
+  const bgAlt = isDark ? '#111' : '#f5f5f5';
+  const borderStyle = isDark
+    ? { border: '3px solid white', boxShadow: 'inset 0 0 0 2px black, inset 0 0 0 5px white' }
+    : { border: '3px solid black', boxShadow: 'inset 0 0 0 2px white, inset 0 0 0 5px black' };
+  const borderStyleDark = isDark
+    ? { border: '3px solid white', boxShadow: 'inset 0 0 0 2px white, inset 0 0 0 5px black' }
+    : { border: '3px solid black', boxShadow: 'inset 0 0 0 2px black, inset 0 0 0 5px white' };
   const [data, setData] = useState<{ tabs: string[]; content: Record<string, TabContent>; introDialog?: { text: string; face: string }[] } | null>(null);
   const [activeTab, setActiveTab] = useState('');
   const [isMobile, setIsMobile] = useState(false);
@@ -44,6 +53,7 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
+  const [burgerOpen, setBurgerOpen] = useState(false);
   const intervalRef = useRef<any>(null);
 
   useEffect(() => {
@@ -129,7 +139,7 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9995,
-      background: 'white',
+      background: bg,
       fontFamily: 'var(--font-omori), monospace',
       display: 'flex',
       flexDirection: 'column',
@@ -140,37 +150,68 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
 
       {/* TOP NAV BAR */}
       <div style={{
-        ...DOUBLE_BORDER_DARK,
-        background: 'black',
+        border: isDark ? '3px solid white' : '3px solid black',
+        boxShadow: isDark ? 'inset 0 0 0 2px black, inset 0 0 0 5px white' : 'inset 0 0 0 2px black, inset 0 0 0 5px white',
+        background: isDark ? 'white' : 'black',
         display: 'flex',
         alignItems: 'center',
         padding: '0 12px',
         height: isMobile ? '50px' : '65px',
         flexShrink: 0,
-        overflowX: 'auto',
       }}>
-        {tabs.map((tab) => (
-          <TabButton
-            key={tab}
-            label={tab}
-            active={activeTab === tab}
-            onClick={() => { setActiveTab(tab); setInterestView(null); }}
-            isMobile={isMobile}
-          />
-        ))}
-        <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+        {isMobile ? (
+          <>
+            <button
+              onClick={() => setBurgerOpen(true)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: isDark ? 'black' : 'white',
+                fontFamily: 'inherit',
+                fontSize: '22px',
+                cursor: 'pointer',
+                padding: '8px 12px',
+                letterSpacing: '0.1em',
+              }}
+            >
+              ☰
+            </button>
+            <span style={{
+              color: isDark ? 'black' : 'white',
+              fontSize: '15px',
+              fontWeight: 'bold',
+              letterSpacing: '0.15em',
+              flex: 1,
+              textAlign: 'center',
+            }}>
+              {activeTab}
+            </span>
+          </>
+        ) : (
+          tabs.map((tab) => (
+            <TabButton
+              key={tab}
+              label={tab}
+              active={activeTab === tab}
+              onClick={() => { setActiveTab(tab); setInterestView(null); }}
+              isMobile={isMobile}
+              isDark={isDark}
+            />
+          ))
+        )}
+        <div style={{ marginLeft: isMobile ? '0' : 'auto', flexShrink: 0 }}>
           <button
             onClick={onClose}
             style={{
               background: 'transparent',
               border: 'none',
-              color: 'white',
+              color: isDark ? 'black' : 'white',
               fontFamily: 'inherit',
               fontSize: isMobile ? '16px' : '20px',
               letterSpacing: '0.1em',
               cursor: 'pointer',
               padding: '8px 20px',
-              borderLeft: '2px solid #555',
+              borderLeft: `2px solid ${isDark ? '#aaa' : '#555'}`,
               whiteSpace: 'nowrap',
             }}
           >
@@ -178,6 +219,62 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
           </button>
         </div>
       </div>
+
+      {/* BURGER SIDE DRAWER */}
+      {isMobile && burgerOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setBurgerOpen(false)}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 10010,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+          />
+          {/* Drawer */}
+          <div style={{
+            position: 'fixed', top: 0, left: 0, bottom: 0,
+            width: '220px', zIndex: 10011,
+            background: isDark ? 'white' : 'black',
+            border: `3px solid ${isDark ? 'black' : 'white'}`,
+            boxShadow: `inset 0 0 0 2px ${isDark ? 'white' : 'black'}, inset 0 0 0 5px ${isDark ? 'black' : 'white'}`,
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '12px 0',
+          }}>
+            <div style={{
+              color: isDark ? 'black' : 'white', fontSize: '11px', letterSpacing: '0.2em',
+              padding: '8px 20px 16px', borderBottom: `1px solid ${isDark ? '#ccc' : '#333'}`,
+              opacity: 0.5,
+            }}>
+              NAVIGATE
+            </div>
+            {tabs.map((tab) => (
+              <div
+                key={tab}
+                onClick={() => { setActiveTab(tab); setInterestView(null); setBurgerOpen(false); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '14px 20px',
+                  cursor: 'pointer',
+                  background: activeTab === tab ? '#222' : 'transparent',
+                  borderLeft: activeTab === tab ? '3px solid white' : '3px solid transparent',
+                }}
+              >
+                <span style={{
+                  color: activeTab === tab ? (isDark ? 'black' : 'white') : '#888',
+                  fontSize: '16px',
+                  fontWeight: activeTab === tab ? 'bold' : 'normal',
+                  letterSpacing: '0.08em',
+                  fontFamily: 'var(--font-omori), monospace',
+                }}>
+                  {tab}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <div style={{
         display: 'flex',
@@ -201,8 +298,8 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
             position: 'relative', 
             width: isMobile ? '100px' : '100%', 
             aspectRatio: '1/1', 
-            border: '3px solid black', 
-            background: 'white',
+            border: `3px solid ${fg}`, 
+            background: bg,
             flexShrink: 0,
             overflow: 'hidden',
             boxSizing: 'border-box'
@@ -210,19 +307,19 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
             <Image 
               src={modalData.isOpen 
                 ? `/assets/${modalData.dialog[dialogIndex]?.face || 'act0'}.png` 
-                : '/assets/pfp.png'}
+                : (isMobile ? '/assets/act0.png' : '/assets/pfp.png')}
               alt="P" 
               fill 
               style={{ imageRendering: 'pixelated', objectFit: 'cover' }} 
             />
 
-            {!modalData.isOpen && (
+            {!modalData.isOpen && !isMobile && (
               <div style={{
                 position: 'absolute',
-                top: isMobile ? '9.5%' : '45%',
-                left: isMobile ? '42.5%' : '27.5%',
-                width: isMobile ? '50%' : '50%',
-                height: isMobile ? '9.2%' : '9.2%',
+                top: '45%',
+                left: '27.5%',
+                width: '50%',
+                height: '9.2%',
                 transform: `translate(${pfpPupilOffset.x}px, ${pfpPupilOffset.y}px)`,
                 transition: 'transform 0.05s ease-out',
                 pointerEvents: 'none',
@@ -233,7 +330,7 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', width: isMobile ? 'auto' : '100%', flex: isMobile ? 1 : 'none', boxSizing: 'border-box' }}>
-            <div style={{ ...DOUBLE_BORDER, background: 'white', padding: '8px 16px', width: '100%', boxSizing: 'border-box', textAlign: 'center' }}>
+            <div style={{ ...borderStyle, background: bg, color: fg, padding: '8px 16px', width: '100%', boxSizing: 'border-box', textAlign: 'center' }}>
               <div style={{ fontSize: isMobile ? '18px' : '24px', fontWeight: 'bold' }}>ETLIL</div>
             </div>
           </div>
@@ -241,20 +338,20 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
 
         {/* RIGHT COLUMN */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, minWidth: 0 }}>
-          <div style={{ ...DOUBLE_BORDER, background: 'black', color: 'white', padding: '10px 20px', fontSize: isMobile ? '14px' : '18px', fontWeight: 'bold' }}>
+          <div style={{ ...borderStyle, background: isDark ? 'white' : 'black', color: isDark ? 'black' : 'white', padding: '10px 20px', fontSize: isMobile ? '14px' : '18px', fontWeight: 'bold' }}>
             {current.title} — {activeTab}
           </div>
 
           {/* STATS TABLE - ADDED HOVER & CLICK DIALOGUE */}
-          <div style={{ ...DOUBLE_BORDER, background: 'white', padding: '20px', flex: 1, overflowY: 'auto' }}>
+          <div style={{ ...borderStyle, background: bg, color: fg, padding: '20px', flex: 1, overflowY: 'auto' }}>
           
           {/* BACK BUTTON — shown when drilling into a category */}
           {interestView && (
             <div
               onClick={() => setInterestView(interestView === 'categories' ? null : 'categories')}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 0', marginBottom: '12px', borderBottom: '2px solid #eee', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 0', marginBottom: '12px', borderBottom: `2px solid ${isDark ? '#333' : '#eee'}`, cursor: 'pointer' }}
             >
-              <span style={{ fontSize: '14px', color: '#555', letterSpacing: '0.1em' }}>← BACK</span>
+              <span style={{ fontSize: '14px', color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)', letterSpacing: '0.1em' }}>← BACK</span>
             </div>
           )}
 
@@ -279,13 +376,13 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
                   setDialogIndex(0);
                 }
               }}
-              style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '2px solid #eee', cursor: 'pointer', gap: '10px' }}
+              style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: `2px solid ${isDark ? '#333' : '#eee'}`, cursor: 'pointer', gap: '10px' }}
             >
               <div style={{ width: '24px', height: '18px', position: 'relative', opacity: hoveredStat === i ? 1 : 0, animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none' }}>
-                <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+                <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain', filter: isDark ? 'invert(1)' : 'none' }} />
               </div>
-              <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#555', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>{stat.label}:</span>
-              <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{stat.value}</span>
+              <span style={{ fontSize: isMobile ? '14px' : '16px', color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>{stat.label}:</span>
+              <span style={{ fontSize: isMobile ? '16px' : '20px', color: isDark ? 'white' : 'black', flex: 1 }}>{stat.value}</span>
             </div>
           ))}
 
@@ -318,12 +415,12 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
                     }
                   }
                 }}
-                style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '2px solid #eee', cursor: 'pointer', gap: '10px' }}
+                style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: `2px solid ${isDark ? '#333' : '#eee'}`, cursor: 'pointer', gap: '10px' }}
               >
                 <div style={{ width: '24px', height: '18px', position: 'relative', opacity: hoveredStat === i ? 1 : 0, animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none' }}>
                   <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
                 </div>
-                <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{cat}</span>
+                <span style={{ fontSize: isMobile ? '16px' : '20px', color: isDark ? 'white' : 'black', flex: 1 }}>{cat}</span>
               </div>
             ));
           })()}
@@ -346,8 +443,8 @@ export default function AboutModal({ isOpen, onClose, onOpenProjects }: { isOpen
                 <div style={{ width: '24px', height: '18px', position: 'relative', opacity: hoveredStat === i ? 1 : 0, animation: hoveredStat === i ? 'bob-nav 0.8s infinite' : 'none' }}>
                   <Image src="/assets/select_hover.png" alt="h" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
                 </div>
-                <span style={{ fontSize: isMobile ? '14px' : '16px', color: '#555', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>#{i + 1}</span>
-                <span style={{ fontSize: isMobile ? '16px' : '20px', color: 'black', flex: 1 }}>{item.name}</span>
+                <span style={{ fontSize: isMobile ? '14px' : '16px', color: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)', minWidth: isMobile ? '90px' : '130px', fontWeight: 'bold' }}>#{i + 1}</span>
+                <span style={{ fontSize: isMobile ? '16px' : '20px', color: isDark ? 'white' : 'black', flex: 1 }}>{item.name}</span>
               </div>
             ));
           })()}
@@ -448,7 +545,7 @@ function ChoiceRow({ label, onClick }: { label: string; onClick: () => void }) {
   );
 }
 // Sub-components
-function TabButton({ label, active, onClick, isMobile }: any) {
+function TabButton({ label, active, onClick, isMobile, isDark }: any) {
   const [hovered, setHovered] = useState(false);
   const show = active || hovered;
 
@@ -491,7 +588,7 @@ function TabButton({ label, active, onClick, isMobile }: any) {
       <span
         style={{
           fontSize: isMobile ? '15px' : '19px',
-          color: show ? 'white' : '#c3c3c3',
+          color: show ? (isDark ? 'black' : 'white') : (isDark ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.5)'),
           whiteSpace: 'nowrap',
           fontWeight: active ? 'bold' : 'normal',
           letterSpacing: '0.05em',

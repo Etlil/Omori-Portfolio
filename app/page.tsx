@@ -370,6 +370,7 @@ export default function Home() {
       <AboutModal 
         isOpen={aboutOpen} 
         onClose={() => setAboutOpen(false)} 
+        isDark={isDark}
         onOpenProjects={() => {
           setAboutOpen(false); // Close About
           setProjectsOpen(true); // Open Projects

@@ -27,6 +27,7 @@ export default function SkillsModal({
   const [swingAngle, setSwingAngle] = useState(0);
   const [paperY, setPaperY] = useState(0);
   const [paperOpacity, setPaperOpacity] = useState(1);
+  const [iconHovered, setIconHovered] = useState(false);
   const wheelCooldown = useRef(false);
   const animFrameRef = useRef<number | null>(null);
   const spriteIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -275,6 +276,10 @@ export default function SkillsModal({
           from { transform: translateY(30px); opacity: 0; }
           to   { transform: translateY(0); opacity: 1; }
         }
+        @keyframes iconPulse {
+          0%, 100% { transform: scale(1.12); }
+          50%       { transform: scale(1.2); }
+        }
       `}</style>
 
       {/* Backdrop */}
@@ -342,7 +347,7 @@ export default function SkillsModal({
                     ? `translate(-50%, -50%) translateY(${paperY}px) rotate(${swingAngle}deg)`
                     : 'translate(-50%, -50%)',
                   opacity: paperState === 'falling' ? paperOpacity : 1,
-                  zIndex: 10,
+                  zIndex: 20,
                   pointerEvents: 'none',
                   transformOrigin: 'top center',
                 }}
@@ -360,7 +365,24 @@ export default function SkillsModal({
                       gap: '12px', padding: '20px',
                       marginTop: '-30px', marginBottom: '20px',
                     }}>
-                      {skill.icon && <img src={skill.icon} alt="" style={{ width: 'min(72px, 14vw)', height: 'min(72px, 14vw)', objectFit: 'contain' }} />}
+                      {skill.icon && (
+                        <img
+                          src={skill.icon}
+                          alt=""
+                          onMouseEnter={() => setIconHovered(true)}
+                          onMouseLeave={() => setIconHovered(false)}
+                          style={{
+                            width: 'min(72px, 14vw)', height: 'min(72px, 14vw)', objectFit: 'contain',
+                            cursor: 'pointer',
+                            animation: iconHovered ? 'iconPulse 0.6s ease-in-out infinite' : 'none',
+                            transform: iconHovered ? 'scale(1.12)' : 'scale(1)',
+                            transition: 'transform 0.15s ease',
+                            filter: iconHovered
+                              ? 'drop-shadow(0 0 8px rgba(255,255,255,0.9)) drop-shadow(0 0 16px rgba(255,255,255,0.5))'
+                              : 'none',
+                          }}
+                        />
+                      )}
                       <p style={{
                         color: 'white', fontSize: 'clamp(12px, 3.5vw, 22px)',
                         letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -386,7 +408,24 @@ export default function SkillsModal({
                       gap: '12px', padding: '20px',
                       marginTop: '-30px', marginBottom: '20px',
                     }}>
-                      {skill.icon && <img src={skill.icon} alt="" style={{ width: 'min(72px, 14vw)', height: 'min(72px, 14vw)', objectFit: 'contain' }} />}
+                      {skill.icon && (
+                        <img
+                          src={skill.icon}
+                          alt=""
+                          onMouseEnter={() => setIconHovered(true)}
+                          onMouseLeave={() => setIconHovered(false)}
+                          style={{
+                            width: 'min(72px, 14vw)', height: 'min(72px, 14vw)', objectFit: 'contain',
+                            cursor: 'pointer',
+                            animation: iconHovered ? 'iconPulse 0.6s ease-in-out infinite' : 'none',
+                            transform: iconHovered ? 'scale(1.12)' : 'scale(1)',
+                            transition: 'transform 0.15s ease',
+                            filter: iconHovered
+                              ? 'drop-shadow(0 0 8px rgba(0,0,0,0.6)) drop-shadow(0 0 16px rgba(0,0,0,0.3))'
+                              : 'none',
+                          }}
+                        />
+                      )}
                       <p style={{
                         color: 'black', fontSize: 'clamp(12px, 3.5vw, 20px)',
                         letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -443,7 +482,32 @@ export default function SkillsModal({
                     marginTop: '-30px',
                     marginBottom: '20px',
                   }}>
-                    {skill.icon && <img src={skill.icon} alt="" style={{ width: '72px', height: '72px', objectFit: 'contain' }} />}
+                    {skill.icon && (
+                      <div
+                        onMouseEnter={() => setIconHovered(true)}
+                        onMouseLeave={() => setIconHovered(false)}
+                        style={{
+                          position: 'relative',
+                          zIndex: 999,
+                          pointerEvents: 'auto',
+                          transform: iconHovered ? 'translateY(-6px)' : 'translateY(0)',
+                          transition: 'transform 0.2s ease, filter 0.2s ease',
+                          filter: iconHovered
+                            ? 'drop-shadow(0 6px 8px rgba(0,0,0,0.5))'
+                            : 'drop-shadow(0 2px 2px rgba(0,0,0,0.15))',
+                          cursor: 'default',
+                        }}
+                      >
+                        <img
+                          src={skill.icon}
+                          alt=""
+                          style={{
+                            width: '72px', height: '72px', objectFit: 'contain',
+                            display: 'block',
+                          }}
+                        />
+                      </div>
+                    )}
                     <p style={{
                       color: 'black', fontSize: '20px',
                       letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -499,8 +563,8 @@ export default function SkillsModal({
           </div>
 
           {/* OVERLAY — above tissue */}
-          <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
-            <Image src="/assets/box_overlay.png" alt="" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+          <div style={{ position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none' }}>
+            <Image src="/assets/box_overlay.png" alt="" fill style={{ imageRendering: 'pixelated', objectFit: 'contain', pointerEvents: 'none' }} />
           </div>
 
           {/* Controls INSIDE the box, at the bottom */}

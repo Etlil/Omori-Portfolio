@@ -15,7 +15,7 @@
           "value": "Jezreel Pimentel",
           "dialog": [
             { "text": "My name is Jezreel Pimentel.", "face": "act1" },
-            { "text": "You can call me Jez or Etlil", "face": "act1" },
+            { "text": "You can call me Jez or Etlil", "face": "act9" },
             { "text": "Nice to meet you!", "face": "act2" }
           ]
         },
@@ -23,7 +23,7 @@
           "label": "PRONOUNS", 
           "value": "He/Him",
           "dialog": [
-            { "text": "Yeah, I don't know why i put ts", "face": "act9" },
+            { "text": "Yeah, I don't know why I put ts", "face": "act9" },
             { "text": "But it tells me that I'm a male.", "face": "act1" }
           ]
         },
@@ -48,18 +48,18 @@
           "value": "Aurora, Philippines",
           "dialog": [
             { "text": "I live in Aurora, Philippines.", "face": "act1" },
-            { "text": "This is also my birthplace.", "face": "act1" }
+            { "text": "This is also my birthplace.", "face": "act2" }
           ]
         },
         { 
           "label": "MBTI", 
-          "value": "INTJ",
+          "value": "INTP",
           "dialog": [
-            { "text": "I am an INTJ according to the MBTI.", "face": "act1" },
-            { "text": "MBTI(Myers-Briggs Type Indicator) is about self-report questionnaire that categorizes individual into different personality types blah blah blah... ", "face": "act8" },
-            { "text": "I ain't saying allat, just search it up in the web bro", "face": "act7" },
-            { "text": "Btw my type is INTJ which means I'm a strategic type of shi...", "face": "act1" },
-            { "text": "Who value logic and efficiency and some shi", "face": "act11" }
+            { "text": "I am an INTP according to the MBTI.", "face": "act1" },
+            { "text": "MBTI (Myers-Briggs Type Indicator) is a personality framework that groups people based on how they think, decide, and perceive the world blah blah blah...", "face": "act10" },
+            { "text": "Yeah I’m not reading all that, just Google it bro.", "face": "act7" },
+            { "text": "Anyway my type is INTP which means I'm basically a thinker type of guy...", "face": "act12" },
+            { "text": "Who overanalyzes everything, questions everything, then forgets what they were doing halfway through", "face": "act13" }
           ]
         },
         { 
@@ -67,14 +67,14 @@
           "value": "Gaming, Music, Art, Watching, Programming",
           "interests": {
             "Gaming": {
-              "dialog": [{ "text": "Yeah gaming is my favorite hobby. Btw here's my top 5 games out there", "face": "act1" }],
+              "dialog": [{ "text": "Yeah gaming is my favorite hobby. Btw here's my top 5 games out there", "face": "act14" }],
               "items": [
                 { "name": "OMORI", "dialog": [
-                    { "text": "Isn't obvious? I freaking love this game.", "face": "act2" },
+                    { "text": "Isn't obvious? I freaking love this game.", "face": "act9" },
                     { "text": "This game is a 2d turnbased RPG, it's a game about friendship and adventure.", "face": "act10" },
                     { "text": "But in the ending it turns out that there is more than adventure,", "face": "act8" },
                     { "text": "And its also a lot of horror and psychological shi going on in this game.", "face": "act5" },
-                    { "text": "And after I finished it kinda change my life.", "face": "act11" },
+                    { "text": "And after I finished it kinda change my life.", "face": "act14" },
                     { "text": "Like forgiving yourself or some shi.", "face": "act1" }
                   ] },
                 { "name": "Undertale", "dialog": [
@@ -82,12 +82,12 @@
                     { "text": "It's a 2D turn-based RPG again and it have a trash graphics.", "face": "act9" },
                     { "text": "But despite that it also has some emotional scenes that can hit you in the feelings.", "face": "act8" },
                     { "text": "And also this game has a lot of different endings depending on your choices.", "face": "act10" },
-                    { "text": "I think the total endings for this game is 93 endings with 3 main endings", "face": "act9" },
-                    { "text": "And the story is really good and the characters are really lovable.", "face": "act1" }
+                    { "text": "I think the total endings for this game is 93 endings with 3 main endings", "face": "act13" },
+                    { "text": "And the story is really good and the characters are really lovable.", "face": "act2" }
                   ] },
                 { "name": "Until Then", "dialog": [
-                    { "text": "I love this game because it's so emotional.", "face": "act1" },
-                    { "text": "And also for It's Philippine representation.", "face": "act2" },
+                    { "text": "I love this game because it's so emotional.", "face": "act4" },
+                    { "text": "And also for It's Philippine representation.", "face": "act8" },
                     { "text": "UYYYY PILIPINS!!! RAHHHHH", "face": "act3" },
                     { "text": "Btw I love this game because the story is really good and the art style is really nice.", "face": "act1" },
                     { "text": "And the scenes relates to me in some ways.", "face": "act10" },
@@ -97,113 +97,113 @@
                 
                 { "name": "Hollow Knight/Silksong", "dialog": [
                     { "text": "I love this game for it's difficulty and it's adventurous gameplay.", "face": "act2" },
-                    { "text": "This game is a 2D metroidvania game with a really nice art style.", "face": "act1" },
+                    { "text": "This game is a 2D metroidvania game with a really nice art style.", "face": "act10" },
                     { "text": "It's my also inspiration for creating a game(that I will create soon)", "face": "act1" },
-                    { "text": "I remember putting a hundred of hours into this game and it was worth it.", "face": "act1" }
+                    { "text": "I remember putting a hundred of hours into this game and it was worth it.", "face": "act14" }
                   ] },
                 { "name": "MLBB", "dialog": [
-                    { "text": "Yeah, about this game....this is a complete trash game.", "face": "act0" },
-                    { "text": "I just can't quit it because I invested so much time and money into it.", "face": "act1" },
-                    { "text": "I played this game for around 7 years and I peaked Mythical Immortal rank in this game.", "face": "act1" },
+                    { "text": "Yeah, about this game....this is a complete trash game.", "face": "act13" },
+                    { "text": "I just can't quit it because I invested so much time and money into it.", "face": "act15" },
+                    { "text": "I played this game for around 7 years and I peaked Mythical Immortal rank in this game.", "face": "act9" },
                     { "text": "Btw, My main hero is Joy with 1k+ and 67% win rate.", "face": "act2" },
-                    { "text": "6 7!!!!!!!!!!", "face": "act1" },
-                    { "text": "But I kinda value this game because of the memories and friendships I made in this game.", "face": "act1" },
+                    { "text": "6 7!!!!!!!!!!", "face": "act3" },
+                    { "text": "But I kinda value this game because of the memories and friendships I made in this game.", "face": "act2" },
                     { "text": "So I still cherish it while I can still play it.", "face": "act1" }
                   ] }
               ]
             },
             "Music": {
               "dialog": [
-                { "text": "I really love music, I just need some music whatever I'm doing.", "face": "act1" },
-                { "text": "I also want to learn some instrument soon, and produce some tracks,", "face": "act1" },
-                { "text": "But for now, I just listen to music for inspiration.", "face": "act1" },
+                { "text": "I really love music, I just need some music whatever I'm doing.", "face": "act2" },
+                { "text": "I also want to learn some instrument soon, and produce some tracks,", "face": "act14" },
+                { "text": "But for now, I just listen to music for inspiration.", "face": "act9" },
                 { "text": "So here's my favorite artist out there. NOTE: ITS NOT A RANKING", "face": "act1" }
               ],
               "items": [
                 { "name": "Toby Fox", "dialog": [ 
                   { "text": "I love the vibe of his musics it fits the RPG genre thingy.", "face": "act1" },
-                  { "text": "He also inspire me to create my own music.", "face": "act1" },
-                  { "text": "Because his games are using the same music that he produces", "face": "act1" },
+                  { "text": "He also inspire me to create my own music.", "face": "act2" },
+                  { "text": "Because his games are using the same music that he produces", "face": "act10" },
                   { "text": "And despite that, it turns out pretty great.", "face": "act1" },
-                  { "text": "My favorite music produced by him is 'His Theme'.", "face": "act1" }
+                  { "text": "My favorite music produced by him is 'His Theme'.", "face": "act2" }
                 ] },
                 { "name": "Arthur Nery", "dialog": [
                   { "text": "I love this artist for his emotional and soulful type of music.", "face": "act1" },
-                  { "text": "His music really hits me in the feelings.", "face": "act1" },
-                  { "text": "I also love to sing along together with his songs.", "face": "act1" },
-                  { "text": "My favorite music produced by him is 'TAKE ALL THE LOVE'.", "face": "act1" }
+                  { "text": "His music really hits me in the feelings.", "face": "act2" },
+                  { "text": "I also love to sing along together with his songs.", "face": "act14" },
+                  { "text": "My favorite music produced by him is 'TAKE ALL THE LOVE'.", "face": "act2" }
                 ] },
                 { "name": "Laufey", "dialog": [
                   { "text": "I love her voice and the way she delivers her songs.", "face": "act1" },
-                  { "text": "Her music is really relaxing and it helps me to calm down whenever I'm stressed.", "face": "act1" },
-                  { "text": "And sometimes I just listen to her music to sleep like it's a lullaby.", "face": "act1" },
-                  { "text": "My favorite music produced by her is 'Let you Break My Heart Again'.", "face": "act1" }
+                  { "text": "Her music is really relaxing and it helps me to calm down whenever I'm stressed.", "face": "act2" },
+                  { "text": "And sometimes I just listen to her music to sleep like it's a lullaby.", "face": "act14" },
+                  { "text": "My favorite music produced by her is 'Let you Break My Heart Again'.", "face": "act2" }
                 ] },
                 { "name": "IV of Spades", "dialog": [
-                  { "text": "Philippines Represent nanaman!!! RAHHHHHH", "face": "act1" },
-                  { "text": "Kidding aside... I just love the band and their songs.", "face": "act1" },
-                  { "text": "They're the top 1 band in my taste in music", "face": "act1" },
-                  { "text": "My favorite music produced by them is 'Dulo ng Hangganan'.", "face": "act1" }
+                  { "text": "Philippines Represent nanaman!!! RAHHHHHH", "face": "act3" },
+                  { "text": "Kidding aside... I just love the band and their songs.", "face": "act2" },
+                  { "text": "They're the top 1 band in my taste in music(for now ig)", "face": "act9" },
+                  { "text": "My favorite music produced by them is 'Dulo ng Hangganan'.", "face": "act2" }
                 ] },
                 { "name": "YAOSOBI", "dialog": [
-                  { "text": "I love their songs even I don't understand the meaning of the lyrics...", "face": "act1" },
+                  { "text": "I love their songs even I don't understand the meaning of the lyrics...", "face": "act9" },
                   { "text": "Their music is really catchy and it has a really nice beat.", "face": "act1" },
-                  { "text": "I also love the way they deliver their songs.", "face": "act1" },
-                  { "text": "My favorite music produced by them is 'Tracing that Dream'.", "face": "act1" }
+                  { "text": "I also love the way they deliver their songs.", "face": "act2" },
+                  { "text": "My favorite music produced by them is 'Tracing that Dream'.", "face": "act2" }
                 ] }
               ]
             },
             "Art": {
               "dialog": [
                 { "text": "Art is just a side hobby of mine.", "face": "act1" },
-                { "text": "I'm just a casual artist, and creating an artwork when I'm bored", "face": "act1" },
-                { "text": "I just know how to draw digitally and a graphite pencil.", "face": "act1" },
-                { "text": "I also want to learn how to paint with acrylic and watercolor soon.", "face": "act1" },
-                { "text": "But for now, I just draw some fanarts of my favorite games and shows.", "face": "act1" },
-                { "text": "And some concept arts for my future games.", "face": "act1" }
+                { "text": "I'm just a casual artist, and creating an artwork when I'm bored", "face": "act2" },
+                { "text": "I just know how to draw digitally and a graphite pencil.", "face": "act9" },
+                { "text": "I also want to learn how to paint with acrylic and watercolor soon.", "face": "act10" },
+                { "text": "But for now, I just draw some fanarts of my favorite games and shows.", "face": "act2" },
+                { "text": "And some concept arts for my future games.", "face": "act11" }
               ]
             },
             "Shows": {
-              "dialog": [{ "text": "I'm more into anime than live actions, that's why most of it are anime.", "face": "act1" }],
+              "dialog": [{ "text": "I'm more into anime than live actions, that's why most of it are anime.", "face": "act9" }],
               "items": [
                 { "name": "Jojo's Bizzare Adventure", "dialog": [
                   { "text": "I love this shows for it's uniqueness, unique power system, unique storylines, and unique artstyle.", "face": "act1" },
-                  { "text": "This show is really iconic and it has a really big fandom.", "face": "act1" },
-                  { "text": "My favorite part of this show is Part 5: Golden Wind.", "face": "act1" }
+                  { "text": "This show is really iconic and it has a really big fandom.", "face": "act14" },
+                  { "text": "My favorite part of this show is Part 5: Golden Wind.", "face": "act2" }
                 ] },
                 { "name": "Vinland Saga", "dialog": [
-                  { "text": "I really like this show for its storytelling and character development.", "face": "act1" },
+                  { "text": "I really like this show for its storytelling and character development.", "face": "act2" },
                   { "text": "Even I don't read the manga, I know for myself that this is one of the best anime out there.", "face": "act1" },
-                  { "text": "It's not about the fighting but It's about empathetic storytelling.", "face": "act1" },
+                  { "text": "It's not about the fighting but It's about empathetic storytelling.", "face": "act2" },
                   { "text": "This show also kinda change my perspective about life.", "face": "act1" }
                 ] },
                 { "name": "Loki(MCU Series)", "dialog": [
                   { "text": "I really like this series for its unique take on the character and the storytelling.", "face": "act1" },
-                  { "text": "I like the way Loki have his redemption arc from being a villain to being a savior of multiverse", "face": "act1" },
-                  { "text": "No Larp.", "face": "act1" }
+                  { "text": "I like the way Loki have his redemption arc from being a villain to being a savior of multiverse", "face": "act8" },
+                  { "text": "No Larp.", "face": "act13" }
                 ] },
                 { "name": "Naruto", "dialog": [
                   { "text": "I'm really into this show for its iconic characters.", "face": "act1" },
-                  { "text": "This anime is also a part of my childhood that's why I put it in here.", "face": "act1" },
-                  { "text": "And I'm still waiting for the Blue Vortex anime release.", "face": "act1" },
+                  { "text": "This anime is also a part of my childhood that's why I put it in here.", "face": "act2" },
+                  { "text": "And I'm still waiting for the Blue Vortex anime release.", "face": "act15" },
                   { "text": "My final take is it's one of the best anime, and It's the best anime in past decade(2010-2020)", "face": "act1" }
                 ] },
                 { "name": "One Piece", "dialog": [
-                  { "text": "Despite of it being overrated, I love this show.", "face": "act1" },
-                  { "text": "Because this show is a part of my college days.", "face": "act1" },
+                  { "text": "Despite of it being overrated, I love this show.", "face": "act9" },
+                  { "text": "Because this show is a part of my college days.", "face": "act8" },
                   { "text": "Until now I still waiting weekly for the new episodes.", "face": "act1" },
-                  { "text": "And everytime I see the iconic characters, my tears come down,", "face": "act1" },
-                  { "text": "While saying 'I'm so glad I was born in this era to experience this shi'", "face": "act1" }
+                  { "text": "And everytime I see the iconic characters, my tears come down,", "face": "act6" },
+                  { "text": "While saying 'I'm so glad I was born in this era to experience this shi'", "face": "act14" }
                 ] }
               ]
             },
             "Programming": {
               "dialog": [
                 { "text": "Programming is both my hobby and career goal.", "face": "act1" },
-                { "text": "Maybe because I'm an IT student??", "face": "act1" },
-                { "text": "I also want to pursue this career path because I love this field.", "face": "act1" },
-                { "text": "For now, I'm just focusing on learning web development and game development.", "face": "act1" },
-                { "text": "And I'm willing to learn what the future holds for me.", "face": "act1" }
+                { "text": "Maybe because I'm an IT student??", "face": "act9" },
+                { "text": "I also want to pursue this career path because I love this field.", "face": "act8" },
+                { "text": "For now, I'm just focusing on learning web development and game development.", "face": "act12" },
+                { "text": "And I'm willing to learn what the future holds for me.", "face": "act2" }
               ]
             }
           }
@@ -218,33 +218,33 @@
           "value": "Northern Luzon Adventist College",
           "dialog": [
             { "text": "I am currently studying at Northern Luzon Adventist College.", "face": "act1" },
-            { "text": "It's a private college located in the province of Pangasinan.", "face": "act2" },
-            { "text": "I am pursuing a degree in Information Technology there.", "face": "act3" }
+            { "text": "It's a private college located in the province of Pangasinan.", "face": "act10" },
+            { "text": "I am pursuing a degree in Information Technology there.", "face": "act2" }
           ]},
         { 
           "label": "COURSE", 
           "value": "Bachelor of Science in Information Technology",
           "dialog": [
             { "text": "I am pursuing a Bachelor of Science in Information Technology.", "face": "act1" },
-            { "text": "I chose this course because I have a strong interest in technology since I was young.", "face": "act1" },
-            { "text": "I also want to pursue a career in the IT industry, that's why I chose this course.", "face": "act1" }
+            { "text": "I chose this course because I have a strong interest in technology since I was young.", "face": "act12" },
+            { "text": "I also want to pursue a career in the IT industry, that's why I chose this course.", "face": "act2" }
           ]
         },
         { 
           "label": "YEAR", 
           "value": "4.5th Year Student",
           "dialog": [
-            { "text": "Yeah bro, you read it right.", "face": "act1" },
-            { "text": "I'm a 4.5th year student, Because I have a back subject that I need to repeat before graduating.", "face": "act1" },
-            { "text": "But I'm planning to graduate this year, hopefully.", "face": "act1" }
+            { "text": "Yeah bro, you read it right.", "face": "act13" },
+            { "text": "I'm a 4.5th year student, Because I have a back subject that I need to repeat before graduating.", "face": "act9" },
+            { "text": "But I'm planning to graduate this year, hopefully.", "face": "act2" }
           ]
         },
         { 
           "label": "SUBJECTS", 
           "value": "Capstone 1 & 2, System Analysis & Design, Software Engineering, etc.",
           "dialog": [
-            { "text": "Some of the subjects I took includes Capstone 1 & 2, System Analysis & Design, and Software Engineering...", "face": "act1" },
-            { "text": "But I won't bore you with the details of each subjects, you can just ask me about it if you want.", "face": "act1" }
+            { "text": "Some of the subjects I took includes Capstone 1 & 2, System Analysis & Design, and Software Engineering...", "face": "act8" },
+            { "text": "But I won't bore you with the details of each subjects, you can just ask me about it if you want.", "face": "act2" }
           ]
         }
       ]
@@ -256,18 +256,18 @@
           "label": "INTERNSHIP", 
           "value": "Northern Luzon Adventist Hospital",
           "dialog": [
-            { "text": "I completed an internship at Northern Luzon Adventist Hospital.", "face": "act1" },
-            { "text": "It's a private hospital located in the province of Pangasinan.", "face": "act2" }, 
-            { "text": "During my internship, I worked on developing a Management Information System for the hospital.", "face": "act3" },
-            { "text": "This system is an all-in-one type of system that has features for patient management, appointment scheduling, inventory management, and more.", "face": "act1" },
-            { "text": "I also learned a lot about real-life software development during my internship.", "face": "act1" }
+            { "text": "I currently work as an intern at Northern Luzon Adventist Hospital.", "face": "act1" },
+            { "text": "It's a private hospital located in the province of Pangasinan.", "face": "act8" }, 
+            { "text": "During my internship, I worked on developing a Management Information System for the hospital.", "face": "act1" },
+            { "text": "This system is an all-in-one type of system that has features for patient management, appointment scheduling, inventory management, and more.", "face": "act11" },
+            { "text": "I also learned a lot about real-life software development during my internship.", "face": "act2" }
           ]
         },
         { 
           "label": "PROJECTS",
           "value": "View Here",
           "dialog": [
-            { "text": "I have worked on several projects throughout my studies. Want to check them out?", "face": "act1" }
+            { "text": "I have worked on several projects throughout my studies. Want to check them out?", "face": "act2" }
           ],
           "choices": [
             { "label": "VIEW PROJECTS", "action": "projects" },
@@ -284,7 +284,7 @@
           "value": "Software Engineer",
           "dialog": [
             { "text": "I want to become a software engineer.", "face": "act1" },
-            { "text": "I really want to pursue this career path because I'm being used to this field.", "face": "act1" }
+            { "text": "I really want to pursue this career path because I'm being used to this field.", "face": "act2" }
           ]
         },
         { 
@@ -292,8 +292,8 @@
           "value": "I want to create an Indie Game",
           "dialog": [
             { "text": "My dream is to create an indie game.", "face": "act1" },
-            { "text": "I have a lot of game ideas that I want to create, and I hope I can create them in the future.", "face": "act1" },
-            { "text": "I also learning some arts and music for game development so I will have my own resources for my own game.", "face": "act1" }
+            { "text": "I have a lot of game ideas that I want to create, and I hope I can create them in the future.", "face": "act12" },
+            { "text": "I also learning some arts and music for game development so I will have my own resources for my own game.", "face": "act14" }
           ]
         },
         { 
@@ -301,8 +301,8 @@
           "value": "I want to improve all of my skills.",
           "dialog": [
             { "text": "I want to continuously improve my skills.", "face": "act1" },
-            { "text": "That means 'all' of my skills, including programming, design, and music.", "face": "act1" },
-            { "text": "Because someday it would be useful.", "face": "act1" }
+            { "text": "That means 'all' of my skills, including programming, design, and music.", "face": "act12" },
+            { "text": "Because someday it would be useful.", "face": "act2" }
           ]
         },
         { 
@@ -310,14 +310,14 @@
           "value": "Music Production, Game Design, Game Development, Programming",
           "dialog": [
             { "text": "I want to learn more about music production, game design, game development, and programming.", "face": "act1" },
-            { "text": "I want to learn anything I'll be able to learn.", "face": "act1" }
+            { "text": "I want to learn anything I'll be able to learn.", "face": "act2" }
           ]
         },
         { 
           "label": "MINDSET", 
           "value": "Adapt, learn, and overcome any challenge",
           "dialog": [
-            { "text": "I believe in myself adapting and learning from any challenge.", "face": "act1" }
+            { "text": "I believe in myself adapting and learning from any challenge.", "face": "act14" }
           ]
         }
       ]

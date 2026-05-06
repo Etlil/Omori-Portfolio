@@ -7,10 +7,11 @@
 }
 
 body {
-  font-family: var(--font-omori), sans-serif;
+  font-family: var(--font-omori), "Courier New", Courier, monospace;
   margin: 0;
   padding: 0;
   overflow: hidden;
+html { overflow: hidden; }
 }
 
 a {

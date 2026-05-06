@@ -3,7 +3,7 @@
     {
       "id": "google",
       "label": "Google",
-      "icon": "/assets/google.png",
+      "icon": "/assets/contacts/google.png",
       "url": "https://mail.google.com/mail/?view=cm&fs=1&to=jezreelpimentel@gmail.com&su=Portfolio%20Inquiry",
       "dialog": "My gmail is jezreelpimentel@gmail.com just copy it to clipboard? or just send me an email?",
       "choices": [
@@ -15,7 +15,7 @@
     {
       "id": "linkedin",
       "label": "LinkedIn",
-      "icon": "/assets/linkedin.png",
+      "icon": "/assets/contacts/linkedin.png",
       "url": "https://www.linkedin.com/in/jezreel-pimentel-9394a9317",
       "dialog": "View my unfinished LinkedIn profile?",
       "choices": [
@@ -26,7 +26,7 @@
     {
       "id": "upwork",
       "label": "Upwork",
-      "icon": "/assets/upwork.png",
+      "icon": "/assets/contacts/upwork.png",
       "url": "https://www.upwork.com/freelancers/~011eecb6ba1442a5ed?mp_source=share",
       "dialog": "View my unfinished LinkedIn profile?",
       "choices": [
@@ -37,7 +37,7 @@
     {
       "id": "jobstreet",
       "label": "JobStreet",
-      "icon": "/assets/jobstreet.png",
+      "icon": "/assets/contacts/jobstreet.png",
       "url": "https://ph.jobstreet.com/profiles/jezreel-pimentel-RMb3C5Y0PD",
       "dialog": "View my unfinished JobStreet profile?",
       "choices": [
@@ -50,7 +50,7 @@
     {
       "id": "facebook",
       "label": "Facebook",
-      "icon": "/assets/facebook.png",
+      "icon": "/assets/contacts/facebook.png",
       "url": "https://www.facebook.com/etlilhshshhs",
       "dialog": "This is my main Facebook account, do you want to visit it?",
       "choices": [
@@ -61,7 +61,7 @@
     {
       "id": "instagram",
       "label": "Instagram",
-      "icon": "/assets/ig.png",
+      "icon": "/assets/contacts/ig.png",
       "url": "https://www.instagram.com/etlil_/",
       "dialog": "This is my Instagram account, do you want to visit it?",
       "choices": [
@@ -72,7 +72,7 @@
     {
         "id": "tiktok",
         "label": "TikTok",
-        "icon": "/assets/tiktok.png",
+        "icon": "/assets/contacts/tiktok.png",
         "url": "https://www.tiktok.com/@.etlil",
         "dialog": [
             "I was an MLBB content creator a long time ago...",
@@ -87,7 +87,7 @@
     {
         "id": "discord",
         "label": "Discord",
-        "icon": "/assets/discord.png",
+        "icon": "/assets/contacts/discord.png",
         "url": "",
         "dialog": "My bad I can't share the link, can you just copy my username instead?",
         "choices": [

@@ -1,8 +1,13 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local"; // 1. Import the local font utility
-import "./globals.css";
 
-// 2. Define your custom font
+
+import type { Metadata } from "next";
+
+import PreloadWrapper from './components/PreloadWrapper';
+
+
+
+
+import localFont from "next/font/local";
 const omoriFont = localFont({
   src: "../public/font/omori_font.ttf", 
   variable: "--font-omori",
@@ -18,11 +23,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   return (
     <html lang="en">
       {/* 3. Apply the font variable to the body */}
       <body className={`${omoriFont.variable} font-sans antialiased`}>
-        {children}
+        <PreloadWrapper>{children}</PreloadWrapper>
       </body>
     </html>
   );

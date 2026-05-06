@@ -158,7 +158,7 @@ export default function Home() {
         }}/>
 
         <div style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 30 }}>
-          <h1 style={{ color: fg, opacity: 0.4 }} className="text-base font-bold tracking-[0.25em] uppercase">Etlil's Portfolio</h1>
+          <h1 style={{ color: fg, opacity: 0.4 }} className="text-base font-bold tracking-[0.25em] uppercase font-omori">Etlil's Portfolio</h1>
         </div>
 
         <div
@@ -389,6 +389,7 @@ function Tooltip({ text, bg, fg }: { text: string; bg: string; fg: string }) {
     <div style={{
       position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
       backgroundColor: bg, border: `2px solid ${fg}`, padding: '3px 10px',
+      fontFamily: 'var(--font-omori), "Courier New", Courier, monospace',
       fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase',
       whiteSpace: 'nowrap', color: fg, zIndex: 100, pointerEvents: 'none',
       marginBottom: '8px'

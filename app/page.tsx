@@ -10,6 +10,10 @@ import SkillsModal from './components/SkillsModal';
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
+  const [burnedOut, setBurnedOut] = useState(false);
+  const [burningOut, setBurningOut] = useState(false);
+  const toggleCountRef = useRef(0);
+  const lastToggleRef = useRef(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [charHovered, setCharHovered] = useState(false);
   const [bulbHovered, setBulbHovered] = useState(false);
@@ -171,16 +175,76 @@ export default function Home() {
             cursor: `url('/assets/cursor.png') 4 4, pointer`,
             transition: 'all 0.4s ease',
           }}
-          onClick={() => setIsDark(!isDark)}
+          onClick={() => {
+            if (burnedOut) return;
+            const now = Date.now();
+            if (now - lastToggleRef.current < 800) {
+              toggleCountRef.current += 1;
+            } else {
+              toggleCountRef.current = 1;
+            }
+            lastToggleRef.current = now;
+
+            if (toggleCountRef.current >= 5) {
+              setBurningOut(true);
+              setTimeout(() => {
+                setBurningOut(false);
+                setBurnedOut(true);
+                setIsDark(true);
+              }, 1200);
+              return;
+            }
+            setIsDark(!isDark);
+          }}
         >
-          {bulbHovered && <Tooltip text={isDark ? 'Light' : 'Dark'} bg={bg} fg={fg} />}
+          {bulbHovered && <Tooltip text={burnedOut ? '...' : (isDark ? 'Light' : 'Dark')} bg={bg} fg={fg} />}
           <div
             style={{ position: 'relative', width: isMobile ? '50px' : '60px', height: '70px' }}
             onMouseEnter={() => setBulbHovered(true)}
             onMouseLeave={() => setBulbHovered(false)}
             onTouchStart={() => setBulbHovered(true)}
           >
-            <Image src={isDark ? '/assets/darkbulb.png' : '/assets/lightbulb.png'} alt="Bulb" fill style={{ imageRendering: 'pixelated', objectFit: 'contain' }} />
+            <Image
+              src={burnedOut ? '/assets/darkbulb.png' : (isDark && !burningOut ? '/assets/darkbulb.png' : '/assets/lightbulb.png')}
+              alt="Bulb"
+              fill
+              style={{
+                imageRendering: 'pixelated',
+                objectFit: 'contain',
+                animation: burningOut ? 'bulbFlicker 1.2s ease-in forwards' : 'none',
+                filter: burnedOut ? 'brightness(0.3) sepia(1) hue-rotate(0deg)' : 'none',
+              }}
+            />
+            {burningOut && (
+              <div style={{
+                position: 'absolute',
+                inset: '-20px',
+                borderRadius: '50%',
+                animation: 'burnFlash 1.2s ease-in forwards',
+                pointerEvents: 'none',
+                zIndex: 5,
+              }}/>
+            )}
+            <style jsx global>{`
+              @keyframes bulbFlicker {
+                0%   { filter: brightness(1); }
+                10%  { filter: brightness(3) saturate(2); }
+                20%  { filter: brightness(1); }
+                35%  { filter: brightness(4) saturate(3); }
+                50%  { filter: brightness(2); }
+                65%  { filter: brightness(5) saturate(4); }
+                80%  { filter: brightness(1.5); }
+                90%  { filter: brightness(3) saturate(2); }
+                100% { filter: brightness(0.3) sepia(1); }
+              }
+              @keyframes burnFlash {
+                0%   { background: radial-gradient(circle, rgba(255,200,50,0) 0%, transparent 70%); }
+                30%  { background: radial-gradient(circle, rgba(255,200,50,0.6) 0%, transparent 70%); }
+                60%  { background: radial-gradient(circle, rgba(255,100,0,0.8) 0%, transparent 70%); }
+                80%  { background: radial-gradient(circle, rgba(255,50,0,0.4) 0%, transparent 70%); }
+                100% { background: radial-gradient(circle, rgba(0,0,0,0) 0%, transparent 70%); }
+              }
+            `}</style>
             <svg style={{ position: 'absolute', top: isMobile ? '-400px' : '-120px', left: '50%', transform: 'translateX(-50%)', overflow: 'visible' }} width="2" height={isMobile ? "400" : "120"}>
               <line x1="1" y1="0" x2="1" y2={isMobile ? "410" : "130"} stroke={fg} strokeWidth="2" />
             </svg>

@@ -17,7 +17,7 @@
       "label": "LinkedIn",
       "icon": "/assets/contacts/linkedin.png",
       "url": "https://www.linkedin.com/in/jezreel-pimentel-9394a9317",
-      "dialog": "View my unfinished LinkedIn profile?",
+      "dialog": "Want to view my LinkedIn profile?",
       "choices": [
         { "label": "VISIT", "action": "open" },
         { "label": "BACK", "action": "close" }
@@ -28,7 +28,7 @@
       "label": "Upwork",
       "icon": "/assets/contacts/upwork.png",
       "url": "https://www.upwork.com/freelancers/~011eecb6ba1442a5ed?mp_source=share",
-      "dialog": "View my unfinished LinkedIn profile?",
+      "dialog": "Want to view my Upwork profile?",
       "choices": [
         { "label": "VISIT", "action": "open" },
         { "label": "BACK", "action": "close" }
@@ -39,7 +39,7 @@
       "label": "JobStreet",
       "icon": "/assets/contacts/jobstreet.png",
       "url": "https://ph.jobstreet.com/profiles/jezreel-pimentel-RMb3C5Y0PD",
-      "dialog": "View my unfinished JobStreet profile?",
+      "dialog": "Want to view my JobStreet profile?",
       "choices": [
         { "label": "VISIT", "action": "open" },
         { "label": "BACK", "action": "close" }

@@ -232,11 +232,11 @@
         },
         { 
           "label": "YEAR", 
-          "value": "4.5th Year Student",
+          "value": "Graduate",
           "dialog": [
             { "text": "Yeah bro, you read it right.", "face": "act13" },
-            { "text": "I'm a 4.5th year student, Because I have a back subject that I need to repeat before graduating.", "face": "act9" },
-            { "text": "But I'm planning to graduate this year, hopefully.", "face": "act2" }
+            { "text": "I have a bachelors degree in Information Technology,", "face": "act11" },
+            { "text": "I ain't saying allat bro, but I'm very thankful to those who supports me throughout this journey.", "face": "act2" }
           ]
         },
         { 
